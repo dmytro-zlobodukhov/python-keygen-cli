@@ -61,3 +61,8 @@ def create_license(name, group, policy, metadata):
         click.echo(f"An unexpected error occurred: {e}")
         raise
         raise
+
+def delete_license(license_id):
+    response = requests.delete(f"{API_BASE_URL}/accounts/{ACCOUNT_ID}/licenses/{license_id}", headers=HEADERS)
+    response.raise_for_status()
+    return response.status_code == 204  # Returns True if deletion was successful

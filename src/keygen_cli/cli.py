@@ -1,5 +1,6 @@
 import click
 import requests
+
 from prompt_toolkit import prompt
 from prompt_toolkit.application import Application
 from prompt_toolkit.key_binding import KeyBindings
@@ -9,15 +10,18 @@ from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.formatted_text import HTML
 from tabulate import tabulate
 
-from .api import get_groups, get_policies, create_license, get_licenses
+from .api import get_groups, get_policies, create_license, get_licenses, delete_license
+
 
 @click.group()
 def cli():
     pass
 
+
 @cli.group()
 def licenses():
     pass
+
 
 def create_selection_dialog(title, options, allow_abort=True, allow_no_selection=False):
     kb = KeyBindings()
@@ -71,6 +75,7 @@ def create_selection_dialog(title, options, allow_abort=True, allow_no_selection
         click.echo("Aborted by user.")
         exit(1)
     return result[0] if result else None
+
 
 @licenses.command()
 @click.option('--name', help='Name of the license')
@@ -175,6 +180,7 @@ def create(name, policy, group, email, user_name, company_name, custom_field):
     except Exception as e:
         click.echo(f"An unexpected error occurred: {e}")
 
+
 @licenses.command()
 def list():
     licenses = get_licenses()
@@ -199,8 +205,56 @@ def list():
         
         click.echo(tabulate(table_data, headers=headers, tablefmt="grid"))
 
+
+@licenses.command()
+def delete():
+    licenses = get_licenses()
+    if not licenses:
+        click.echo("No licenses found.")
+        return
+
+    license_options = [(license['id'], f"{license['attributes']['name']} ({license['id']})") for license in licenses]
+    selected_license = create_selection_dialog(
+        "Select a license to delete:",
+        license_options,
+        allow_abort=True
+    )
+
+    if selected_license is None:
+        click.echo("License deletion aborted.")
+        return
+
+    selected_license_data = next(license for license in licenses if license['id'] == selected_license)
+    license_name = selected_license_data['attributes']['name']
+    license_id = selected_license_data['id']
+    metadata = selected_license_data['attributes'].get('metadata', {})
+
+    click.echo(f"\nSelected license:")
+    click.echo(f"  Name: {license_name}")
+    click.echo(f"  ID: {license_id}")
+    click.echo("  Metadata:")
+    for key, value in metadata.items():
+        click.echo(f"    {key}: {value}")
+
+    confirm = click.confirm("\nAre you sure you want to delete this license?", default=False)
+    if confirm:
+        try:
+            if delete_license(license_id):
+                click.echo(f"License '{license_name}' (ID: {license_id}) has been successfully deleted.")
+            else:
+                click.echo(f"Failed to delete license '{license_name}' (ID: {license_id}). The API request was successful, but the license may not have been deleted.")
+        except requests.exceptions.HTTPError as e:
+            click.echo(f"Failed to delete license: {e}")
+            click.echo("Please check the error details above.")
+        except Exception as e:
+            click.echo(f"An unexpected error occurred: {e}")
+    else:
+        click.echo("License deletion cancelled.")
+
+
 def main():
     cli()
+
 
 if __name__ == '__main__':
     main()

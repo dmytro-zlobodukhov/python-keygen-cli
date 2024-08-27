@@ -59,3 +59,10 @@ kgsh licenses create --name "Custom License" --custom-field "department=Sales" -
 ```
 kgsh licenses list
 ```
+
+### Deleting a License
+
+To delete a license:
+```
+kgsh licenses delete
+```
