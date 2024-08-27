@@ -78,12 +78,12 @@ def create_selection_dialog(title, options, allow_abort=True, allow_no_selection
 
 
 @licenses.command()
-@click.option('--name', help='Name of the license')
-@click.option('--policy', help='Name of the policy for the license')
-@click.option('--group', help='Name of the group for the license')
-@click.option('--email', help='Email for the license metadata')
-@click.option('--user-name', help='User name for the license metadata')
-@click.option('--company-name', help='Company name for the license metadata')
+@click.option('-n', '--name', help='Name of the license')
+@click.option('-p', '--policy', help='Name of the policy for the license')
+@click.option('-g', '--group', help='Name of the group for the license')
+@click.option('-e', '--email', help='Email for the license metadata')
+@click.option('-u', '--user-name', help='User name for the license metadata')
+@click.option('-c', '--company-name', help='Company name for the license metadata')
 @click.option('--custom-field', help='Custom field for the license metadata (format: key=value)', multiple=True)
 def create(name, policy, group, email, user_name, company_name, custom_field):
     if not name:
@@ -207,24 +207,35 @@ def list():
 
 
 @licenses.command()
-def delete():
+@click.option('--name', help='Name of the license to delete')
+@click.option('-f', '--force', is_flag=True, help='Force deletion without confirmation')
+def delete(name, force):
     licenses = get_licenses()
     if not licenses:
         click.echo("No licenses found.")
         return
 
-    license_options = [(license['id'], f"{license['attributes']['name']} ({license['id']})") for license in licenses]
-    selected_license = create_selection_dialog(
-        "Select a license to delete:",
-        license_options,
-        allow_abort=True
-    )
+    if name:
+        # Find the license by name
+        selected_license_data = next((license for license in licenses if license['attributes']['name'] == name), None)
+        if not selected_license_data:
+            click.echo(f"No license found with the name '{name}'.")
+            return
+    else:
+        # If no name provided, use the selection dialog
+        license_options = [(license['id'], f"{license['attributes']['name']} ({license['id']})") for license in licenses]
+        selected_license = create_selection_dialog(
+            "Select a license to delete:",
+            license_options,
+            allow_abort=True
+        )
 
-    if selected_license is None:
-        click.echo("License deletion aborted.")
-        return
+        if selected_license is None:
+            click.echo("License deletion aborted.")
+            return
 
-    selected_license_data = next(license for license in licenses if license['id'] == selected_license)
+        selected_license_data = next(license for license in licenses if license['id'] == selected_license)
+
     license_name = selected_license_data['attributes']['name']
     license_id = selected_license_data['id']
     metadata = selected_license_data['attributes'].get('metadata', {})
@@ -236,7 +247,11 @@ def delete():
     for key, value in metadata.items():
         click.echo(f"    {key}: {value}")
 
-    confirm = click.confirm("\nAre you sure you want to delete this license?", default=False)
+    if not force:
+        confirm = click.confirm("\nAre you sure you want to delete this license?", default=False)
+    else:
+        confirm = True
+
     if confirm:
         try:
             if delete_license(license_id):

@@ -48,8 +48,12 @@ You can also provide information via command-line options:
 ```
 kgsh licenses create --name "My License" --policy "Standard Policy" --group "Test Group" --email "user@example.com" --user-name "John Doe" --company-name "ACME Inc."
 ```
+Or even shorter:
+```
+kgsh licenses create -n "My License" -p "Standard Policy" -g "Test Group" -e "user@example.com" -u "John Doe" -c "ACME Inc."
+```
 
-Adding custom metadata fields:
+You can even add additional custom metadata fields:
 ```
 kgsh licenses create --name "Custom License" --custom-field "department=Sales" --custom-field "role=Manager"
 ```
@@ -59,6 +63,7 @@ kgsh licenses create --name "Custom License" --custom-field "department=Sales" -
 ```
 kgsh licenses list
 ```
+It will list all licenses in your account in a table view, including metadata fields for better understanding of the licenses.
 
 ### Deleting a License
 
@@ -66,3 +71,8 @@ To delete a license:
 ```
 kgsh licenses delete
 ```
+It will list all the licenses in your account, you will need to select the license you want to delete.
+
+After selecting the license, it will ask you to confirm the deletion.
+
+Warning: This will actually delete the license from your account.
