@@ -32,9 +32,11 @@ KEYGEN_PRODUCT_TOKEN=your_product_token
 
 Replace `your_account_id` and `your_product_token` with your actual Keygen.sh account ID and product token.
 
-## Usage
+# Usage
 
 The CLI provides commands for managing licenses. Here are some examples:
+
+## Licenses
 
 ### Creating a License
 
@@ -76,3 +78,11 @@ It will list all the licenses in your account, you will need to select the licen
 After selecting the license, it will ask you to confirm the deletion.
 
 Warning: This will actually delete the license from your account.
+
+## Groups
+
+### Listing Groups
+
+```
+kgsh groups list
+```
