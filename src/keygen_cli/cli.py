@@ -23,6 +23,11 @@ def licenses():
     pass
 
 
+@cli.group()
+def groups():
+    pass
+
+
 def create_selection_dialog(title, options, allow_abort=True, allow_no_selection=False):
     kb = KeyBindings()
     selected_index = [0]
@@ -265,6 +270,17 @@ def delete(name, force):
             click.echo(f"An unexpected error occurred: {e}")
     else:
         click.echo("License deletion cancelled.")
+
+
+@groups.command()
+def list():
+    groups = get_groups()
+    if not groups:
+        click.echo("No groups found.")
+    else:
+        # Format the groups data for tabulation
+        formatted_groups = [[group['attributes']['name'], group['id']] for group in groups]
+        click.echo(tabulate(formatted_groups, headers=["Name", "ID"], tablefmt="grid"))
 
 
 def main():
