@@ -84,6 +84,13 @@ def create(name, policy, group, email, user_name, company_name, custom_field):
     if not name:
         name = prompt("Enter license name: ")
 
+    # Check if a license with the same name already exists
+    existing_licenses = get_licenses()
+    if any(license['attributes']['name'] == name for license in existing_licenses):
+        click.echo(f"Error: A license with the name '{name}' already exists.")
+        click.echo("Please choose a different name or use a unique identifier.")
+        return
+
     if not policy:
         policies = get_policies()
         policy = create_selection_dialog(
