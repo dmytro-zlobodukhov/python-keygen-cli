@@ -3,14 +3,9 @@ import requests
 import json
 
 from prompt_toolkit import prompt
-from prompt_toolkit.application import Application
-from prompt_toolkit.key_binding import KeyBindings
-from prompt_toolkit.layout.containers import HSplit, Window
-from prompt_toolkit.layout.controls import FormattedTextControl
-from prompt_toolkit.layout.layout import Layout
-from prompt_toolkit.formatted_text import HTML
 from tabulate import tabulate
 
+from .utils import create_selection_dialog
 from .api.licenses import create_license, get_licenses, delete_license
 from .api.groups import get_groups
 from .api.policies import get_policies
@@ -18,80 +13,19 @@ from .api.releases import get_releases, get_releases_by_name
 from .api.packages import get_packages
 
 
+# MARK: CLI - main
 @click.group()
 def cli():
     pass
 
 
+# MARK: Licenses commands
 @cli.group()
 def licenses():
     pass
 
 
-@cli.group()
-def groups():
-    pass
-
-
-@cli.group()
-def releases():
-    pass
-
-def create_selection_dialog(title, options, allow_abort=True, allow_no_selection=False):
-    kb = KeyBindings()
-    selected_index = [0]
-
-    @kb.add('up')
-    def _(event):
-        selected_index[0] = (selected_index[0] - 1) % len(options)
-
-    @kb.add('down')
-    def _(event):
-        selected_index[0] = (selected_index[0] + 1) % len(options)
-
-    @kb.add('enter')
-    def _(event):
-        event.app.exit(result=options[selected_index[0]])
-
-    @kb.add('c-c')
-    @kb.add('q')
-    def _(event):
-        event.app.exit(result=None)
-
-    def get_formatted_options():
-        formatted_options = []
-        for i, option in enumerate(options):
-            if i == selected_index[0]:
-                formatted_options.append(f"<ansired>▸</ansired> {option[1]}")
-            else:
-                formatted_options.append(f"  {option[1]}")
-        
-        if allow_abort:
-            formatted_options.append("  (Press 'q' to abort)")
-        
-        return HTML('\n'.join(formatted_options))
-
-    layout = Layout(
-        HSplit([
-            Window(height=1, content=FormattedTextControl(title)),
-            Window(content=FormattedTextControl(get_formatted_options))
-        ])
-    )
-
-    app = Application(
-        layout=layout,
-        key_bindings=kb,
-        full_screen=True
-    )
-
-    result = app.run()
-    if result is None and allow_abort:
-        click.echo("Aborted by user.")
-        exit(1)
-    return result[0] if result else None
-
-
-# MARK: Licenses commands
+# MARK: Licenses commands - create
 @licenses.command()
 @click.option('-n', '--name', help='Name of the license')
 @click.option('-p', '--policy', help='Name of the policy for the license')
@@ -196,6 +130,7 @@ def create(name, policy, group, email, user_name, company_name, custom_field):
         click.echo(f"An unexpected error occurred: {e}")
 
 
+# MARK: Licenses commands - list
 @licenses.command()
 def list():
     licenses = get_licenses()
@@ -221,6 +156,7 @@ def list():
         click.echo(tabulate(table_data, headers=headers, tablefmt="grid"))
 
 
+# MARK: Licenses commands - delete
 @licenses.command()
 @click.option('--name', help='Name of the license to delete')
 @click.option('-f', '--force', is_flag=True, help='Force deletion without confirmation')
@@ -283,6 +219,12 @@ def delete(name, force):
 
 
 # MARK: Groups commands
+@cli.group()
+def groups():
+    pass
+
+
+# MARK: Groups commands - list
 @groups.command()
 def list():
     groups = get_groups()
@@ -296,6 +238,12 @@ def list():
 
 
 # MARK: Releases commands
+@cli.group()
+def releases():
+    pass
+
+
+# MARK: Releases commands - list
 @releases.command()
 @click.option('-n', '--name', help='Name of the release (partial match)')
 def list(name=None):
@@ -325,16 +273,18 @@ def list(name=None):
 
         table_data.append([release_name, version, id])
 
-    # Sort the table data by release name (first column)
-    table_data.sort(key=lambda x: x[0].lower())
+    # Sort the table data by release version (second column)
+    table_data.sort(key=lambda x: x[1].lower())
 
     click.echo(tabulate(table_data, headers=headers, tablefmt="grid"))
 
 
+# MARK: Packages commands
 @cli.group()
 def packages():
     pass
 
+# MARK: Packages commands - list
 @packages.command()
 def list():
     packages = get_packages()
@@ -359,6 +309,7 @@ def list():
     click.echo(tabulate(table_data, headers=headers, tablefmt="grid"))
 
 
+# MARK: Main
 def main():
     cli()
 
