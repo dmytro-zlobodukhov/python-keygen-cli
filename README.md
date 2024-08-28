@@ -2,6 +2,19 @@
 
 A command-line interface (CLI) application for interacting with the Keygen.sh API.
 
+p.s. This application was developed in a hurry with help of Cursor AI for research purposes.
+
+## Motivation
+
+Keygen.sh is a platform for managing software licenses and other digital assets. It allows you to create, manage, and distribute licenses for your software. This CLI tool is designed to help you interact with the Keygen.sh API, making it easier to manage your licenses programmatically.
+
+Creating licenses manually is not a big deal, but when you need to create a lot of licenses for demos and customers, it can be a pain. And, as usual, manual creation is a subject to human error.
+We have a dev team that requested a simple solution to create trial licenses for customers and demos. We already have a solution in place, but it is not flexible and convenient to use. I wanted to create a simple and flexible solution that would be easy to use and modify.
+
+This CLI replicates almost all the functionality of the existing solution, but it is written with interactivity in mind to help non-technical users to create licenses.
+
+p.s. It was not designed to use as a Python library that can be imported into your project. But it is a subject to change.
+
 ## Installation
 
 1. Clone this repository and navigate to it (it is `python-keygen-cli` directory by default):
