@@ -3,6 +3,7 @@ import json
 import click
 from ..config import API_BASE_URL, ACCOUNT_ID, HEADERS
 
+
 def get_licenses():
     licenses = []
     page = 1
@@ -23,6 +24,7 @@ def get_licenses():
         page += 1
 
     return licenses
+
 
 def create_license(name, group, policy, metadata):
     payload = {
@@ -61,6 +63,7 @@ def create_license(name, group, policy, metadata):
         click.echo(f"An unexpected error occurred: {e}")
         raise
         raise
+
 
 def delete_license(license_id):
     response = requests.delete(f"{API_BASE_URL}/accounts/{ACCOUNT_ID}/licenses/{license_id}", headers=HEADERS)

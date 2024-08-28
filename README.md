@@ -207,3 +207,54 @@ License 'asdasd' (ID: abcdabcd-abdc-abdc-abdc-abdcabdcabdc) has been successfull
 | group2  | abcdabcd-abdc-abdc-abdc-abdcabdcabdc |
 +---------+--------------------------------------+
 ```
+
+## Packages
+
+### Listing Packages
+
+```
+❯ kgsh packages list
+
++-----------+--------------------------------------+----------+------------+
+| Name      | ID                                   | Engine   | Platform   |
++===========+======================================+==========+============+
+| package1  | abcdabcd-abdc-abdc-abdc-abdcabdcabdc | pypi     | N/A        |
++-----------+--------------------------------------+----------+------------+
+| package2  | bbcdabcd-abdc-abdc-abdc-abdcabdcabdc | pypi     | N/A        |
++-----------+--------------------------------------+----------+------------+
+| package3  | cbcdabcd-abdc-abdc-abdc-abdcabdcabdc | pypi     | N/A        |
++-----------+--------------------------------------+----------+------------+
+```
+
+## Releases
+
+### Listing Releases
+
+```
+❯ kgsh releases list
+
++------------------+------------+--------------------------------------+
+| Name             | Version    | Id                                   |
++==================+============+======================================+
+| cool-release1    | 1.2.13     | abcdabcd-abdc-abdc-abdc-abdcabdcabdc |
++------------------+------------+--------------------------------------+
+| awesome-release2 | 2.4.8     | abcdabcd-abdc-abdc-abdc-abdcabdcabdc |
++------------------+------------+--------------------------------------+
+
+
+❯ kgsh releases list -n cool-release1
+
++------------------+------------+--------------------------------------+
+| Name             | Version    | Id                                   |
++==================+============+======================================+
+| cool-release1    | 1.2.13     | abcdabcd-abdc-abdc-abdc-abdcabdcabdc |
++------------------+------------+--------------------------------------+
+
+❯ kgsh releases list -n cool
+
++------------------+------------+--------------------------------------+
+| Name             | Version    | Id                                   |
++==================+============+======================================+
+| cool-release1    | 1.2.13     | abcdabcd-abdc-abdc-abdc-abdcabdcabdc |
++------------------+------------+--------------------------------------+
+```

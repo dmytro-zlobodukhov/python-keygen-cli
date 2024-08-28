@@ -1,5 +1,6 @@
 import click
 import requests
+import json
 
 from prompt_toolkit import prompt
 from prompt_toolkit.application import Application
@@ -10,7 +11,11 @@ from prompt_toolkit.layout.layout import Layout
 from prompt_toolkit.formatted_text import HTML
 from tabulate import tabulate
 
-from .api import get_groups, get_policies, create_license, get_licenses, delete_license
+from .api.licenses import create_license, get_licenses, delete_license
+from .api.groups import get_groups
+from .api.policies import get_policies
+from .api.releases import get_releases, get_releases_by_name
+from .api.packages import get_packages
 
 
 @click.group()
@@ -27,6 +32,10 @@ def licenses():
 def groups():
     pass
 
+
+@cli.group()
+def releases():
+    pass
 
 def create_selection_dialog(title, options, allow_abort=True, allow_no_selection=False):
     kb = KeyBindings()
@@ -82,6 +91,7 @@ def create_selection_dialog(title, options, allow_abort=True, allow_no_selection
     return result[0] if result else None
 
 
+# MARK: Licenses commands
 @licenses.command()
 @click.option('-n', '--name', help='Name of the license')
 @click.option('-p', '--policy', help='Name of the policy for the license')
@@ -272,15 +282,81 @@ def delete(name, force):
         click.echo("License deletion cancelled.")
 
 
+# MARK: Groups commands
 @groups.command()
 def list():
     groups = get_groups()
     if not groups:
         click.echo("No groups found.")
+        return  # Exit early if no groups found
     else:
         # Format the groups data for tabulation
         formatted_groups = [[group['attributes']['name'], group['id']] for group in groups]
         click.echo(tabulate(formatted_groups, headers=["Name", "ID"], tablefmt="grid"))
+
+
+# MARK: Releases commands
+@releases.command()
+@click.option('-n', '--name', help='Name of the release (partial match)')
+def list(name=None):
+    releases = get_releases()
+    
+    if not releases:
+        click.echo("No releases found.")
+        return
+
+    if name:
+        filtered_releases = [
+            release for release in releases
+            if name.lower() in release['attributes']['name'].lower()
+        ]
+        if not filtered_releases:
+            click.echo(f"No releases found containing '{name}'.")
+            return
+        releases = filtered_releases
+
+    table_data = []
+    headers = ["Name", "Version", "Id"]
+
+    for release in releases:
+        release_name = release['attributes']['name']
+        version = release['attributes']['version']
+        id = release['id']
+
+        table_data.append([release_name, version, id])
+
+    # Sort the table data by release name (first column)
+    table_data.sort(key=lambda x: x[0].lower())
+
+    click.echo(tabulate(table_data, headers=headers, tablefmt="grid"))
+
+
+@cli.group()
+def packages():
+    pass
+
+@packages.command()
+def list():
+    packages = get_packages()
+    if not packages:
+        click.echo("No packages found.")
+        return
+
+    table_data = []
+    headers = ["Name", "ID", "Engine", "Platform"]
+
+    for package in packages:
+        name = package['attributes'].get('name', 'N/A')
+        id = package['id']
+        engine = package['attributes'].get('engine', 'N/A')
+        platform = package['attributes'].get('platform', 'N/A')
+
+        table_data.append([name, id, engine, platform])
+
+    # Sort the table data by package name (first column)
+    table_data.sort(key=lambda x: x[0].lower())
+
+    click.echo(tabulate(table_data, headers=headers, tablefmt="grid"))
 
 
 def main():
