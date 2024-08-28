@@ -30,7 +30,7 @@ p.s. It was not designed to use as a Python library that can be imported into yo
 
 3. Install the package:
    ```
-   pip install -e .
+   pip install -e ".[dev]"
    ```
 
 ## Configuration

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -11,11 +11,18 @@ license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
-    "click>=8.0.0",
-    "requests>=2.25.0",
-    "prompt-toolkit>=3.0",
-    "python-dotenv>=1.0",
-    "tabulate>=0.8.9",
+    "click",
+    "requests",
+    "prompt-toolkit",
+    "python-dotenv",
+    "tabulate",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pre-commit",
+    "ruff",
 ]
 
 [project.scripts]
