@@ -6,14 +6,25 @@ p.s. This application was developed in a hurry with help of Cursor AI for resear
 
 ## Motivation
 
-Keygen.sh is a platform for managing software licenses and other digital assets. It allows you to create, manage, and distribute licenses for your software. This CLI tool is designed to help you interact with the Keygen.sh API, making it easier to manage your licenses programmatically.
+Keygen.sh is a powerful platform for managing software licenses and digital assets. While it offers a comprehensive API, there was a need for a more user-friendly tool to interact with this API, especially for non-technical users and for handling different operations.
 
-Creating licenses manually is not a big deal, but when you need to create a lot of licenses for demos and customers, it can be a pain. And, as usual, manual creation is a subject to human error.
-We have a dev team that requested a simple solution to create trial licenses for customers and demos. We already have a solution in place, but it is not flexible and convenient to use. I wanted to create a simple and flexible solution that would be easy to use and modify.
+Key motivations for creating this CLI tool:
 
-This CLI replicates almost all the functionality of the existing solution, but it is written with interactivity in mind to help non-technical users to create licenses.
+1. Simplify License Management: Creating and managing licenses through a web interface can be time-consuming, especially when dealing with multiple licenses for demos and customers.
 
-p.s. It was not designed to use as a Python library that can be imported into your project. But it is a subject to change.
+2. Reduce Human Error: Manual license creation is prone to mistakes. An automated CLI tool helps minimize these errors.
+
+3. Improve Efficiency: Our development team needed a quick and reliable way to create trial licenses. The existing solutions were not flexible or convenient enough.
+
+4. User-Friendly Interface: This CLI is designed with interactivity in mind, making it accessible for both technical and non-technical users.
+
+5. Flexibility and Customization: Unlike our previous solution, this CLI is easy to modify and extend, allowing us to adapt it to our changing needs.
+
+6. Ability to quickly take a glance at the licenses, groups, packages, releases, and more.
+
+By addressing these needs, this CLI tool streamlines our license management process, making it more efficient, reliable, and user-friendly for our entire team.
+
+p.s. This tool is not perfect and is not intended to replace the web interface. It is a simple tool to help with common tasks.
 
 ## Installation
 
@@ -111,6 +122,15 @@ License created successfully:
     companyName: ACME Inc.
 ```
 Metadata fields can be added or can be skipped. If skipped, all values in metadata will be set to `None`.
+
+
+If you try to create a license with the same name, you will get an error:
+```
+❯ kgsh licenses create --name asdasd
+
+Error: A license with the name 'asdasd' already exists.
+Please choose a different name or use a unique identifier.
+```
 
 You can even add additional custom metadata fields (not tested yet):
 ```
