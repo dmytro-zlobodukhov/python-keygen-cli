@@ -230,31 +230,45 @@ License 'asdasd' (ID: abcdabcd-abdc-abdc-abdc-abdcabdcabdc) has been successfull
 
 ### Listing Releases
 
+List all releases:
 ```
 ❯ kgsh releases list
 
 +------------------+------------+--------------------------------------+
 | Name             | Version    | Id                                   |
 +==================+============+======================================+
-| cool-release1    | 1.2.13     | abcdabcd-abdc-abdc-abdc-abdcabdcabdc |
+| cool-release1    | 1.2.13     | 1bcdabcd-abdc-abdc-abdc-abdcabdcabdc |
 +------------------+------------+--------------------------------------+
-| awesome-release2 | 2.4.8     | abcdabcd-abdc-abdc-abdc-abdcabdcabdc |
+| awesome-release2 | 2.4.8      | 2bcdabcd-abdc-abdc-abdc-abdcabdcabdc |
 +------------------+------------+--------------------------------------+
+```
 
-
+List releases by full release name:
+```
 ❯ kgsh releases list -n cool-release1
 
 +------------------+------------+--------------------------------------+
 | Name             | Version    | Id                                   |
 +==================+============+======================================+
-| cool-release1    | 1.2.13     | abcdabcd-abdc-abdc-abdc-abdcabdcabdc |
+| cool-release1    | 1.2.13     | 1bcdabcd-abdc-abdc-abdc-abdcabdcabdc |
 +------------------+------------+--------------------------------------+
+```
 
+List releases by part of release name:
+```
 ❯ kgsh releases list -n cool
 
 +------------------+------------+--------------------------------------+
 | Name             | Version    | Id                                   |
 +==================+============+======================================+
-| cool-release1    | 1.2.13     | abcdabcd-abdc-abdc-abdc-abdcabdcabdc |
+| cool-release1    | 1.2.13     | 1bcdabcd-abdc-abdc-abdc-abdcabdcabdc |
++------------------+------------+--------------------------------------+
+
+❯ kgsh releases list -n awesome
+
++------------------+------------+--------------------------------------+
+| Name             | Version    | Id                                   |
++==================+============+======================================+
+| awesome-release2 | 2.4.8      | 2bcdabcd-abdc-abdc-abdc-abdcabdcabdc |
 +------------------+------------+--------------------------------------+
 ```
