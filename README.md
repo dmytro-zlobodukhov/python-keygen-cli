@@ -4,9 +4,9 @@ A command-line interface (CLI) application for interacting with the Keygen.sh AP
 
 ## Installation
 
-1. Clone this repository and navigate to it (it is `keygen-cli` directory by default):
+1. Clone this repository and navigate to it (it is `python-keygen-cli` directory by default):
    ```
-   cd keygen-cli
+   cd python-keygen-cli
    ```
 
 2. Create a virtual environment (optional but recommended):
