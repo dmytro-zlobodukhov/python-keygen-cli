@@ -9,6 +9,10 @@ from prompt_toolkit.formatted_text import HTML
 
 # MARK: Selection dialog
 def create_selection_dialog(title, options, allow_abort=True, allow_no_selection=False):
+    if not options:
+        click.echo("No options available for selection.")
+        return None
+
     kb = KeyBindings()
     selected_index = [0]
 

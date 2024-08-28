@@ -47,6 +47,10 @@ def create(name, policy, group, email, user_name, company_name, custom_field):
 
     if not policy:
         policies = get_policies()
+        if not policies:
+            click.echo("Error: No policies found. Please create a policy first.")
+            return
+        
         policy = create_selection_dialog(
             "Select a policy:",
             [(p['id'], p['attributes']['name']) for p in policies],
@@ -68,16 +72,18 @@ def create(name, policy, group, email, user_name, company_name, custom_field):
 
     if not group:
         groups = get_groups()
-        group_options = [(g['id'], g['attributes']['name']) for g in groups]
-        group_options.append((None, "No group"))
-        group = create_selection_dialog(
-            "Select a group (or 'No group' to proceed without a group):",
-            group_options,
-            allow_abort=True
-        )
+        if not groups:
+            click.echo("Warning: No groups found. Proceeding without a group.")
+            group = None
+        else:
+            group_options = [(g['id'], g['attributes']['name']) for g in groups]
+            group_options.append((None, "No group"))
+            group = create_selection_dialog(
+                "Select a group (or 'No group' to proceed without a group):",
+                group_options,
+                allow_abort=True
+            )
         
-        if group is None:
-            click.echo("Proceeding without a group.")
     else:
         # Find group ID by name
         groups = get_groups()
