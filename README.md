@@ -4,9 +4,8 @@ A command-line interface (CLI) application for interacting with the Keygen.sh AP
 
 ## Installation
 
-1. Clone the repository:
+1. Clone this repository and navigate to it (it is `keygen-cli` directory by default):
    ```
-   git clone https://github.com/yourusername/keygen-cli.git
    cd keygen-cli
    ```
 
