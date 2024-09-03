@@ -1,12 +1,14 @@
 import click
 import requests
 import json
+import os
 
 from prompt_toolkit import prompt
 from tabulate import tabulate
+from datetime import datetime, timezone
 
 from .utils import create_selection_dialog
-from .api.licenses import create_license, get_licenses, delete_license
+from .api.licenses import create_license, get_licenses, delete_license, checkout_license
 from .api.groups import get_groups
 from .api.policies import get_policies
 from .api.releases import get_releases, get_releases_by_name
@@ -50,13 +52,13 @@ def create(name, policy, group, email, user_name, company_name, custom_field):
         if not policies:
             click.echo("Error: No policies found. Please create a policy first.")
             return
-        
+
         policy = create_selection_dialog(
             "Select a policy:",
             [(p['id'], p['attributes']['name']) for p in policies],
             allow_abort=True
         )
-        
+
         if not policy:
             click.echo("Error: Policy selection is mandatory. Aborting license creation.")
             return
@@ -83,7 +85,7 @@ def create(name, policy, group, email, user_name, company_name, custom_field):
                 group_options,
                 allow_abort=True
             )
-        
+
     else:
         # Find group ID by name
         groups = get_groups()
@@ -96,7 +98,7 @@ def create(name, policy, group, email, user_name, company_name, custom_field):
 
     # Metadata collection
     metadata = {}
-    
+
     if not email:
         email = prompt("Enter email (optional, press Enter to leave blank): ") or None
     if email:
@@ -145,7 +147,7 @@ def list():
     else:
         table_data = []
         headers = ["Name", "Key", "Email", "User Name", "Company Name"]
-        
+
         for license in licenses:
             name = license['attributes']['name']
             key = license['attributes']['key'][:10] + "..."  # First 10 chars + ...
@@ -153,12 +155,12 @@ def list():
             email = metadata.get('email', '')
             user_name = metadata.get('userName', '')
             company_name = metadata.get('companyName', '')
-            
+
             table_data.append([name, key, email, user_name, company_name])
-        
+
         # Sort the table data by license name (first column)
         table_data.sort(key=lambda x: x[0].lower())
-        
+
         click.echo(tabulate(table_data, headers=headers, tablefmt="grid"))
 
 
@@ -224,6 +226,90 @@ def delete(name, force):
         click.echo("License deletion cancelled.")
 
 
+@licenses.command()
+@click.option('--name', help='Name of the license to checkout')
+def checkout(name):
+    licenses = get_licenses()
+    if not licenses:
+        click.echo("No licenses found.")
+        return
+
+    if name:
+        # Find the license by name
+        selected_license_data = next((license for license in licenses if license['attributes']['name'] == name), None)
+        if not selected_license_data:
+            click.echo(f"No license found with the name '{name}'.")
+            return
+    else:
+        # If no name provided, use the selection dialog
+        license_options = [(license['id'], f"{license['attributes']['name']} ({license['id']})") for license in licenses]
+        selected_license = create_selection_dialog(
+            "Select a license to checkout:",
+            license_options,
+            allow_abort=True
+        )
+
+        if selected_license is None:
+            click.echo("License checkout aborted.")
+            return
+
+        selected_license_data = next(license for license in licenses if license['id'] == selected_license)
+
+    license_name = selected_license_data['attributes']['name']
+    license_id = selected_license_data['id']
+    metadata = selected_license_data['attributes'].get('metadata', {})
+    license_expiry = selected_license_data['attributes'].get('expiry')
+
+    click.echo(f"\nSelected license:")
+    click.echo(f"  Name: {license_name}")
+    click.echo(f"  ID: {license_id}")
+
+    if license_expiry:
+        try:
+            license_expiry_iso = license_expiry.replace('Z', '+00:00')
+            license_expiry_tz = datetime.fromisoformat(license_expiry_iso)
+            now = datetime.now(license_expiry_tz.tzinfo)
+            time_until_expiry = license_expiry_tz - now
+            expiry_days = time_until_expiry.days
+            expiry_seconds = time_until_expiry.total_seconds()
+            click.echo(f"  Expiry: {license_expiry_tz.strftime('%Y-%m-%d %H:%M:%S %Z')} (Days until expiry: {expiry_days})")
+        except ValueError:
+            click.echo(f"  Expiry: {license_expiry} (Invalid format)")
+    else:
+        click.echo("  Expiry: N/A")
+
+    click.echo("  Metadata:")
+    for key, value in metadata.items():
+        click.echo(f"    {key}: {value}")
+
+    try:
+        result = checkout_license(license_id=license_id, ttl=expiry_seconds, encrypt=True)
+        if result:
+            click.echo(f"License '{license_name}' (ID: {license_id}) has been successfully checked out.")
+            
+            # Create a file and save the license file
+            filename = f"{license_name}_license.lic"
+            
+            # Check if file already exists
+            if os.path.exists(filename):
+                overwrite = click.confirm(f"File '{filename}' already exists. Do you want to overwrite it?", default=False)
+                if not overwrite:
+                    click.echo("Certificate save cancelled.")
+                    return
+            
+            with open(filename, 'w') as f:
+                f.write(result['attributes']['certificate'])
+            
+            click.echo(f"Certificate saved to: {os.path.abspath(filename)}")
+        else:
+            click.echo(f"Failed to checkout license '{license_name}' (ID: {license_id}). The API request was successful, but the license may not have been checked out.")
+    except requests.exceptions.HTTPError as e:
+        click.echo(f"Failed to checkout license: {e}")
+        click.echo("Please check the error details above.")
+    except Exception as e:
+        click.echo(f"An unexpected error occurred: {e}")
+
+
 # MARK: Groups commands
 @cli.group()
 def groups():
@@ -254,7 +340,7 @@ def releases():
 @click.option('-n', '--name', help='Name of the release (partial match)')
 def list(name=None):
     releases = get_releases()
-    
+
     if not releases:
         click.echo("No releases found.")
         return
