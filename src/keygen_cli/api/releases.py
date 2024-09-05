@@ -24,6 +24,20 @@ def get_releases():
     return releases
 
 
+def get_release_by_id(release_id):
+    response = requests.get(
+        f"{API_BASE_URL}/accounts/{ACCOUNT_ID}/releases/{release_id}",
+        headers=HEADERS
+    )
+    response.raise_for_status()
+    return response.json()['data']
+
+def get_release_by_id_cached(release_id, releases):
+    for release in releases:
+        if release['id'] == release_id:
+            return release
+    return None
+
 def get_releases_by_name(name):
     releases = get_releases()
     return [release for release in releases if release['attributes']['name'] == name]

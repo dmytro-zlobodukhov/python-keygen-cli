@@ -12,7 +12,7 @@ from .utils import create_selection_dialog
 from .api.licenses import create_license, get_licenses, delete_license, checkout_license
 from .api.groups import get_groups
 from .api.policies import get_policies
-from .api.releases import get_releases
+from .api.releases import get_releases, get_release_by_id, get_release_by_id_cached
 from .api.packages import get_packages
 from .api.artifacts import get_artifacts
 
@@ -29,7 +29,7 @@ def licenses():
     pass
 
 
-# MARK: Licenses commands - create
+# MARK: Licenses cmds - create
 @licenses.command()
 @click.option('-n', '--name', help='Name of the license')
 @click.option('-p', '--policy', help='Name of the policy for the license')
@@ -140,7 +140,7 @@ def create(name, policy, group, email, user_name, company_name, custom_field):
         click.echo(f"An unexpected error occurred: {e}")
 
 
-# MARK: Licenses commands - list
+# MARK: Licenses cmds - list
 @licenses.command()
 def list():
     licenses = get_licenses()
@@ -166,7 +166,7 @@ def list():
         click.echo(tabulate(table_data, headers=headers, tablefmt="grid"))
 
 
-# MARK: Licenses commands - delete
+# MARK: Licenses cmds - delete
 @licenses.command()
 @click.option('--name', help='Name of the license to delete')
 @click.option('-f', '--force', is_flag=True, help='Force deletion without confirmation')
@@ -228,7 +228,7 @@ def delete(name, force):
         click.echo("License deletion cancelled.")
 
 
-# MARK: Licenses commands - checkout
+# MARK: Licenses cmds - checkout
 @licenses.command()
 @click.option('--name', help='Name of the license to checkout')
 def checkout(name):
@@ -319,7 +319,7 @@ def groups():
     pass
 
 
-# MARK: Groups commands - list
+# MARK: Groups cmds - list
 @groups.command()
 def list():
     groups = get_groups()
@@ -338,7 +338,7 @@ def releases():
     pass
 
 
-# MARK: Releases commands - list
+# MARK: Releases cmds - list
 @releases.command()
 @click.option('-n', '--name', help='Name of the release (partial match)')
 def list(name=None):
@@ -379,7 +379,7 @@ def list(name=None):
 def packages():
     pass
 
-# MARK: Packages commands - list
+# MARK: Packages cmds - list
 @packages.command()
 def list():
     packages = get_packages()
@@ -410,14 +410,16 @@ def artifacts():
     pass
 
 
-# MARK: Artifacts commands - list
+# MARK: Artifacts cmds - list
 @artifacts.command()
 @click.option('-n', '--name', help='Name of the artifact (partial match)')
 @click.option('-v', '--version', help='Version of the artifact (partial match)')
 @click.option('-p', '--platform', help='Platform of the artifact (partial match)')
 @click.option('-a', '--arch', help='Architecture of the artifact (partial match)')
-def list(name=None, version=None, platform=None, arch=None):
+@click.option('-i', '--id', help='Show IDs of the artifacts', is_flag=True)
+def list(name=None, version=None, platform=None, arch=None, id=False):
     artifacts = get_artifacts()
+    releases = get_releases()
 
     if not artifacts:
         click.echo("No artifacts found.")
@@ -464,11 +466,14 @@ def list(name=None, version=None, platform=None, arch=None):
         artifacts = filtered_artifacts
 
     table_data = []
-    headers = ["Name", "ID", "Architecture", "Platform", "Size (MB)"]
+
+    if id:
+        headers = ["Name", "ID", "Release name", "Release version", "Architecture", "Platform", "Size (MB)"]
+    else:
+        headers = ["Name", "Release name", "Release version", "Architecture", "Platform", "Size (MB)"]
 
     for artifact in artifacts:
         name = artifact['attributes'].get('filename', 'N/A')
-        id = artifact['id']
         arch = artifact['attributes'].get('arch', 'N/A')
         platform = artifact['attributes'].get('platform', 'N/A')
         size = int(artifact['attributes'].get('filesize', ''))
@@ -477,7 +482,16 @@ def list(name=None, version=None, platform=None, arch=None):
         else:
             size_mb = size
 
-        table_data.append([name, id, arch, platform, size_mb])
+        release_id = artifact['relationships']['release']['data']['id']
+        release = get_release_by_id_cached(release_id, releases)
+        release_name = release['attributes']['name']
+        release_version = release['attributes']['version']
+
+        if id:
+            artifact_id = artifact['id']
+            table_data.append([name, artifact_id, release_name, release_version, arch, platform, size_mb])
+        else:
+            table_data.append([name, release_name, release_version, arch, platform, size_mb])
 
     # Sort the table data by artifact name (first column)
     table_data.sort(key=lambda x: x[0].lower())
