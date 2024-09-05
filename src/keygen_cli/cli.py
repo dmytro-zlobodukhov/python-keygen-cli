@@ -2,6 +2,7 @@ import click
 import requests
 import json
 import os
+import re
 
 from prompt_toolkit import prompt
 from tabulate import tabulate
@@ -11,8 +12,9 @@ from .utils import create_selection_dialog
 from .api.licenses import create_license, get_licenses, delete_license, checkout_license
 from .api.groups import get_groups
 from .api.policies import get_policies
-from .api.releases import get_releases, get_releases_by_name
+from .api.releases import get_releases
 from .api.packages import get_packages
+from .api.artifacts import get_artifacts
 
 
 # MARK: CLI - main
@@ -226,6 +228,7 @@ def delete(name, force):
         click.echo("License deletion cancelled.")
 
 
+# MARK: Licenses commands - checkout
 @licenses.command()
 @click.option('--name', help='Name of the license to checkout')
 def checkout(name):
@@ -286,20 +289,20 @@ def checkout(name):
         result = checkout_license(license_id=license_id, ttl=expiry_seconds, encrypt=True)
         if result:
             click.echo(f"License '{license_name}' (ID: {license_id}) has been successfully checked out.")
-            
+
             # Create a file and save the license file
             filename = f"{license_name}_license.lic"
-            
+
             # Check if file already exists
             if os.path.exists(filename):
                 overwrite = click.confirm(f"File '{filename}' already exists. Do you want to overwrite it?", default=False)
                 if not overwrite:
                     click.echo("Certificate save cancelled.")
                     return
-            
+
             with open(filename, 'w') as f:
                 f.write(result['attributes']['certificate'])
-            
+
             click.echo(f"Certificate saved to: {os.path.abspath(filename)}")
         else:
             click.echo(f"Failed to checkout license '{license_name}' (ID: {license_id}). The API request was successful, but the license may not have been checked out.")
@@ -400,6 +403,86 @@ def list():
 
     click.echo(tabulate(table_data, headers=headers, tablefmt="grid"))
 
+
+# MARK: Artifacts commands
+@cli.group()
+def artifacts():
+    pass
+
+
+# MARK: Artifacts commands - list
+@artifacts.command()
+@click.option('-n', '--name', help='Name of the artifact (partial match)')
+@click.option('-v', '--version', help='Version of the artifact (partial match)')
+@click.option('-p', '--platform', help='Platform of the artifact (partial match)')
+@click.option('-a', '--arch', help='Architecture of the artifact (partial match)')
+def list(name=None, version=None, platform=None, arch=None):
+    artifacts = get_artifacts()
+
+    if not artifacts:
+        click.echo("No artifacts found.")
+        return
+
+    if name:
+        filtered_artifacts = [
+            artifact for artifact in artifacts
+            if name.lower() in artifact['attributes']['filename'].lower()
+        ]
+        if not filtered_artifacts:
+            click.echo(f"No artifacts found containing '{name}'.")
+            return
+        artifacts = filtered_artifacts
+
+    if version:
+        filtered_artifacts = [
+            artifact for artifact in artifacts
+            if version.lower() in artifact['attributes']['filename'].lower()
+        ]
+        if not filtered_artifacts:
+            click.echo(f"No artifacts found containing '{version}'.")
+            return
+        artifacts = filtered_artifacts
+
+    if platform:
+        filtered_artifacts = [
+            artifact for artifact in artifacts
+            if platform.lower() in artifact['attributes']['platform'].lower()
+        ]
+        if not filtered_artifacts:
+            click.echo(f"No artifacts found containing '{platform}'.")
+            return
+        artifacts = filtered_artifacts
+
+    if arch:
+        filtered_artifacts = [
+            artifact for artifact in artifacts
+            if arch.lower() in artifact['attributes']['arch'].lower()
+        ]
+        if not filtered_artifacts:
+            click.echo(f"No artifacts found containing '{arch}'.")
+            return
+        artifacts = filtered_artifacts
+
+    table_data = []
+    headers = ["Name", "ID", "Architecture", "Platform", "Size (MB)"]
+
+    for artifact in artifacts:
+        name = artifact['attributes'].get('filename', 'N/A')
+        id = artifact['id']
+        arch = artifact['attributes'].get('arch', 'N/A')
+        platform = artifact['attributes'].get('platform', 'N/A')
+        size = int(artifact['attributes'].get('filesize', ''))
+        if size != 0 or size != None:
+            size_mb = round(size / (1024 * 1024), 2)
+        else:
+            size_mb = size
+
+        table_data.append([name, id, arch, platform, size_mb])
+
+    # Sort the table data by artifact name (first column)
+    table_data.sort(key=lambda x: x[0].lower())
+
+    click.echo(tabulate(table_data, headers=headers, tablefmt="grid"))
 
 # MARK: Main
 def main():
