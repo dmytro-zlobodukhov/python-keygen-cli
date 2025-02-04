@@ -4,6 +4,24 @@ A command-line interface (CLI) application for interacting with the Keygen.sh AP
 
 p.s. This application was developed in a hurry with help of Cursor AI for research purposes.
 
+## Table of Contents
+  - [Motivation](#motivation)
+  - [Installation](#installation)
+  - [Configuration](#configuration)
+  - [Usage](#usage)
+    - [Licenses](#licenses)
+      - [Creating a License](#creating-a-license)
+      - [Listing Licenses](#listing-licenses)
+      - [Deleting a License](#deleting-a-license)
+    - [Groups](#groups)
+      - [Listing Groups](#listing-groups)
+    - [Packages](#packages)
+      - [Listing Packages](#listing-packages)
+    - [Releases](#releases)
+      - [Listing Releases](#listing-releases)
+    - [Artifacts](#artifacts)
+      - [Listing Artifacts](#listing-artifacts)
+
 ## Motivation
 
 Keygen.sh is a powerful platform for managing software licenses and digital assets. While it offers a comprehensive API, there was a need for a more user-friendly tool to interact with this API, especially for non-technical users and for handling different operations.
@@ -139,22 +157,123 @@ You can even add additional custom metadata fields (not tested yet):
 
 ### Listing Licenses
 
+Listing as a detailed table:
+```
+❯ kgsh licenses list -o wide
+
++------------+---------------+---------------+---------------------+---------------+----------------+
+| Name       | Key           | License       | Email               | User Name     | Company Name   |
++============+===============+===============+=====================+===============+================+
+| license1   | ABCD-ABCD-... | Trial         | user1@example.com   | Service User  | CompanyName1   |
++------------+---------------+---------------+---------------------+---------------+----------------+
+| license2   | DBCD-DBCD-... | Trial         | user2@example.com   |               | CompanyName2   |
++------------+---------------+---------------+---------------------+---------------+----------------+
+| license3   | EFGH-EFGH-... | Trial         |                     | Service User  | CompanyName3   |
++------------+---------------+---------------+---------------------+---------------+----------------+
+```
+
+Listing as a default table:
 ```
 ❯ kgsh licenses list
 
-+------------+---------------+---------------------+---------------+----------------+
-| Name       | Key           | Email               | User Name     | Company Name   |
-+============+===============+=====================+===============+================+
-| license1   | ABCD-ABCD-... | user1@example.com   | Service User  | CompanyName1   |
-+------------+---------------+---------------------+---------------+----------------+
-| license2   | DBCD-DBCD-... | user2@example.com   |               | CompanyName2   |
-+------------+---------------+---------------------+---------------+----------------+
-| license3   | EFGH-EFGH-... |                     | Service User  | CompanyName3   |
-+------------+---------------+---------------------+---------------+----------------+
++------------+---------------+---------------+
+| Name       | Key           | License       |
++============+===============+===============+
+| license1   | ABCD-ABCD-... | Trial         |
++------------+---------------+---------------+
+| license2   | DBCD-DBCD-... | Trial         |
++------------+---------------+---------------+
+| license3   | EFGH-EFGH-... | Trial         |
++------------+---------------+---------------+
 ```
-It will list all licenses in your account in a table view, including metadata fields for better understanding of the licenses.
+
+Listing as a text list:
+```
+❯ kgsh licenses list -o text
+
+license1
+license2
+license3
+```
+
+Listing as a JSON:
+```
+❯ kgsh licenses list -o json
+
+[
+    {
+        "name": "license1",
+        "key": "ABCD-ABCD-ABCD-ABCD",
+        "metadata": {
+            "email": "email",
+            "userName": "Service User",
+            "companyName": "CompanyName1"
+        }
+    },
+    {
+        "name": "license2",
+        "key": "DBCD-DBCD-DBCD-DBCD",
+        "metadata": {
+            "email": "email",
+            "userName": "",
+            "companyName": "CompanyName2"
+        }
+    },
+    {
+        "name": "license3",
+        "key": "EFGH-EFGH-EFGH-EFGH",
+        "metadata": {
+            "email": "",
+            "userName": "Service User",
+            "companyName": "CompanyName3"
+        }
+    }
+]
+```
+
+Listing as a CSV:
+```
+❯ kgsh licenses list -o csv
+
+Name,Key,Email,User Name,Company Name
+license1,ABCD-ABCD-ABCD-ABCD,email,Service User,CompanyName1
+license2,DBCD-DBCD-DBCD-DBCD,email,,CompanyName2
+license3,EFGH-EFGH-EFGH-EFGH,,Service User,CompanyName3
+```
+
+It will list all licenses in your account in a table/json/csv/text view, including metadata fields for better understanding of the licenses.
 
 If the value is `None`, it will be displayed as empty.
+
+### Showing License Details
+
+To show details of a specific license:
+```
+❯ kgsh licenses show --name "license1"
+
+Selected license:
+  Name: license1
+  ID: abcdabcd-abdc-abdc-abdc-abdcabdcabdc
+  Metadata:
+    email:
+    userName: Service User
+    companyName: CompanyName
+    licenseType: Trial
+```
+
+Or you can combine `show` and `list` commands:
+```
+❯ kgsh licenses show --name "$(kgsh licenses list -o text | grep license1)"
+
+Selected license:
+  Name: license1
+  ID: abcdabcd-abdc-abdc-abdc-abdcabdcabdc
+  Metadata:
+    email:
+    userName: Service User
+    companyName: CompanyName
+    licenseType: Trial
+```
 
 ### Deleting a License
 

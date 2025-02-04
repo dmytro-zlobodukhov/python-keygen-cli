@@ -1,8 +1,9 @@
 import click
 import requests
 import json
+import csv
+import sys
 import os
-import re
 
 from prompt_toolkit import prompt
 from tabulate import tabulate
@@ -142,28 +143,132 @@ def create(name, policy, group, email, user_name, company_name, custom_field):
 
 # MARK: Licenses cmds - list
 @licenses.command()
-def list():
+@click.option("-o", "--output", help="Output format (table, wide, csv, json, text)", default="table")
+def list(output):
     licenses = get_licenses()
     if not licenses:
         click.echo("No licenses found.")
     else:
-        table_data = []
-        headers = ["Name", "Key", "Email", "User Name", "Company Name"]
+        match output:
+            case "wide":
+                table_data = []
+                headers = ["Name", "Key", "License", "Email", "User Name", "Company Name"]
 
-        for license in licenses:
-            name = license['attributes']['name']
-            key = license['attributes']['key'][:10] + "..."  # First 10 chars + ...
-            metadata = license['attributes'].get('metadata', {})
-            email = metadata.get('email', '')
-            user_name = metadata.get('userName', '')
-            company_name = metadata.get('companyName', '')
+                for license in licenses:
+                    name = license['attributes']['name'][:35] + "..." if len(license['attributes']['name']) > 35 else license['attributes']['name']
+                    key = license['attributes']['key'][:10] + "..."
+                    metadata = license['attributes'].get('metadata', {})
+                    license_type = metadata.get('licenseType', '')
+                    email = metadata.get('email', '')
+                    user_name = metadata.get('userName', '') or metadata.get('name', '')
+                    company_name = metadata.get('companyName', '') or metadata.get('company', '')
 
-            table_data.append([name, key, email, user_name, company_name])
+                    table_data.append([name, key, license_type, email, user_name, company_name])
 
-        # Sort the table data by license name (first column)
-        table_data.sort(key=lambda x: x[0].lower())
+                # Sort the table data by license name (first column)
+                table_data.sort(key=lambda x: x[0].lower())
 
-        click.echo(tabulate(table_data, headers=headers, tablefmt="grid"))
+                click.echo(tabulate(table_data, headers=headers, tablefmt="grid"))
+
+            case "table":
+                table_data = []
+                headers = ["Name", "Key", "License"]
+
+                for license in licenses:
+                    name = license['attributes']['name']
+                    key = license['attributes']['key'][:10] + "..."
+                    metadata = license['attributes'].get('metadata', {})
+                    license_type = metadata.get('licenseType', '')
+
+                    table_data.append([name, key, license_type])
+
+                # Sort the table data by license name (first column)
+                table_data.sort(key=lambda x: x[0].lower())
+
+                click.echo(tabulate(table_data, headers=headers, tablefmt="grid"))
+
+            case "csv":
+                headers = ["Name", "Key", "License", "Email", "User Name", "Company Name"]
+
+                writer = csv.writer(sys.stdout)
+                writer.writerow(headers)
+
+                for license in licenses:
+                    name = license['attributes']['name']
+                    key = license['attributes']['key']
+                    metadata = license['attributes'].get('metadata', {})
+                    license_type = metadata.get('licenseType', '')
+                    email = metadata.get('email', '')
+                    user_name = metadata.get('userName', '') or metadata.get('name', '')
+                    company_name = metadata.get('companyName', '') or metadata.get('company', '')
+
+                    writer.writerow([name, key, license_type, email, user_name, company_name])
+
+            case "json":
+                json_output = []
+                for license in licenses:
+                    license_info = {
+                        "name": license['attributes']['name'],
+                        "key": license['attributes']['key'],
+                        "metadata": license['attributes'].get('metadata', {})
+                    }
+                    json_output.append(license_info)
+
+                json.dump(json_output, sys.stdout, indent=2)
+
+            case "text":
+                for license in licenses:
+                    name = license['attributes']['name']
+                    key = license['attributes']['key']
+                    metadata = license['attributes'].get('metadata', {})
+                    license_type = metadata.get('licenseType', '')
+                    email = metadata.get('email', '')
+                    user_name = metadata.get('userName', '') or metadata.get('name', '')
+                    company_name = metadata.get('companyName', '') or metadata.get('company', '')
+
+                    click.echo(name)
+
+
+# MARK: Licenses cmds - show
+@licenses.command()
+@click.option('-n', '--name', help='Name of the license')
+def show(name):
+    licenses = get_licenses()
+    if not licenses:
+        click.echo("No licenses found.")
+        return
+
+    if name:
+        # Find the license by name
+        selected_license_data = next((license for license in licenses if name in license['attributes']['name']), None)
+        if not selected_license_data:
+            click.echo(f"No license found with the name '{name}'.")
+            return
+    else:
+        # If no name provided, use the selection dialog
+        license_options = [(license['id'], f"{license['attributes']['name']} ({license['id']})") for license in licenses]
+        selected_license = create_selection_dialog(
+            "Select a license to show:",
+            license_options,
+            allow_abort=True
+        )
+
+        if selected_license is None:
+            click.echo("License show aborted.")
+            return
+
+        selected_license_data = next(license for license in licenses if license['id'] == selected_license)
+
+    license_name = selected_license_data['attributes']['name']
+    license_id = selected_license_data['id']
+    metadata = selected_license_data['attributes'].get('metadata', {})
+
+    click.echo(f"\nSelected license:")
+    click.echo(f"  Name: {license_name}")
+    click.echo(f"  ID: {license_id}")
+    click.echo("  Metadata:")
+    for key, value in metadata.items():
+        click.echo(f"    {key}: {value}")
 
 
 # MARK: Licenses cmds - delete
