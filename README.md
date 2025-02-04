@@ -12,6 +12,7 @@ p.s. This application was developed in a hurry with help of Cursor AI for resear
     - [Licenses](#licenses)
       - [Creating a License](#creating-a-license)
       - [Listing Licenses](#listing-licenses)
+      - [Showing License Details](#showing-license-details)
       - [Deleting a License](#deleting-a-license)
     - [Groups](#groups)
       - [Listing Groups](#listing-groups)
