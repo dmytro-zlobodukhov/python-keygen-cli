@@ -2,8 +2,6 @@
 
 A command-line interface (CLI) application for interacting with the Keygen.sh API.
 
-p.s. This application was developed in a hurry with help of Cursor AI for research purposes.
-
 ## Table of Contents
   - [Motivation](#motivation)
   - [Installation](#installation)
