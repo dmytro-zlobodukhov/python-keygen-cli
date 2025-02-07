@@ -248,7 +248,7 @@ If the value is `None`, it will be displayed as empty.
 
 ### Showing License Details
 
-To show details of a specific license:
+To show details of a specific license (or you can set `-o text` explicitly):
 ```
 ❯ kgsh licenses show --name "license1"
 
@@ -260,6 +260,22 @@ Selected license:
     userName: Service User
     companyName: CompanyName
     licenseType: Trial
+```
+
+Show details of a specific license in JSON:
+```
+❯ kgsh licenses show --name "license1" -o json
+
+{
+    "name": "license1",
+    "id": "abcdabcd-abdc-abdc-abdc-abdcabdcabdc",
+    "metadata": {
+        "email": "",
+        "userName": "Service User",
+        "companyName": "CompanyName",
+        "licenseType": "Trial"
+    }
+}
 ```
 
 Or you can combine `show` and `list` commands:
