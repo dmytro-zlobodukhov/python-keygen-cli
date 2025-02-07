@@ -11,6 +11,7 @@ A command-line interface (CLI) application for interacting with the Keygen.sh AP
       - [Creating a License](#creating-a-license)
       - [Listing Licenses](#listing-licenses)
       - [Showing License Details](#showing-license-details)
+      - [Checkout a License](#checkout-a-license)
       - [Deleting a License](#deleting-a-license)
     - [Groups](#groups)
       - [Listing Groups](#listing-groups)
