@@ -63,11 +63,23 @@ p.s. This tool is not perfect and is not intended to replace the web interface. 
 
 ## Configuration
 
-Create a `.env` file in the root directory of the project with the following content:
+Create a `.env` file in the root directory of the project with the following content (you can copy and edit the `.env.example` file):
 
 ```
 KEYGEN_ACCOUNT_ID=your_account_id
 KEYGEN_PRODUCT_TOKEN=your_product_token
+```
+
+Alternatively, you can set these environment variables directly in your shell:
+
+```
+# On Linux/macOS
+export KEYGEN_ACCOUNT_ID=your_account_id
+export KEYGEN_PRODUCT_TOKEN=your_product_token
+
+# On Windows
+$env:KEYGEN_ACCOUNT_ID="your_account_id"
+$env:KEYGEN_PRODUCT_TOKEN="your_product_token"
 ```
 
 Replace `your_account_id` and `your_product_token` with your actual Keygen.sh account ID and product token.
