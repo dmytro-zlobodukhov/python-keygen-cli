@@ -32,20 +32,20 @@ def licenses():
 
 # MARK: Licenses cmds - create
 @licenses.command()
-@click.option('-n', '--name', help='Name of the license')
-@click.option('-p', '--policy', help='Name of the policy for the license')
-@click.option('-g', '--group', help='Name of the group for the license')
-@click.option('-e', '--email', help='Email for the license metadata')
-@click.option('-u', '--user-name', help='User name for the license metadata')
-@click.option('-c', '--company-name', help='Company name for the license metadata')
-@click.option('--custom-field', help='Custom field for the license metadata (format: key=value)', multiple=True)
+@click.option("-n", "--name", help="Name of the license")
+@click.option("-p", "--policy", help="Name of the policy for the license")
+@click.option("-g", "--group", help="Name of the group for the license")
+@click.option("-e", "--email", help="Email for the license metadata")
+@click.option("-u", "--user-name", help="User name for the license metadata")
+@click.option("-c", "--company-name", help="Company name for the license metadata")
+@click.option("--custom-field", help="Custom field for the license metadata (format: key=value)", multiple=True)
 def create(name, policy, group, email, user_name, company_name, custom_field):
     if not name:
         name = prompt("Enter license name: ")
 
     # Check if a license with the same name already exists
     existing_licenses = get_licenses()
-    if any(license['attributes']['name'] == name for license in existing_licenses):
+    if any(license["attributes"]["name"] == name for license in existing_licenses):
         click.echo(f"Error: A license with the name '{name}' already exists.")
         click.echo("Please choose a different name or use a unique identifier.")
         return
@@ -57,9 +57,7 @@ def create(name, policy, group, email, user_name, company_name, custom_field):
             return
 
         policy = create_selection_dialog(
-            "Select a policy:",
-            [(p['id'], p['attributes']['name']) for p in policies],
-            allow_abort=True
+            "Select a policy:", [(p["id"], p["attributes"]["name"]) for p in policies], allow_abort=True
         )
 
         if not policy:
@@ -69,7 +67,7 @@ def create(name, policy, group, email, user_name, company_name, custom_field):
     else:
         # Find policy ID by name
         policies = get_policies()
-        policy_id = next((p['id'] for p in policies if p['attributes']['name'] == policy), None)
+        policy_id = next((p["id"] for p in policies if p["attributes"]["name"] == policy), None)
         if not policy_id:
             click.echo(f"Error: Policy '{policy}' not found. Aborting license creation.")
             return
@@ -81,18 +79,16 @@ def create(name, policy, group, email, user_name, company_name, custom_field):
             click.echo("Warning: No groups found. Proceeding without a group.")
             group = None
         else:
-            group_options = [(g['id'], g['attributes']['name']) for g in groups]
+            group_options = [(g["id"], g["attributes"]["name"]) for g in groups]
             group_options.append((None, "No group"))
             group = create_selection_dialog(
-                "Select a group (or 'No group' to proceed without a group):",
-                group_options,
-                allow_abort=True
+                "Select a group (or 'No group' to proceed without a group):", group_options, allow_abort=True
             )
 
     else:
         # Find group ID by name
         groups = get_groups()
-        group_id = next((g['id'] for g in groups if g['attributes']['name'] == group), None)
+        group_id = next((g["id"] for g in groups if g["attributes"]["name"] == group), None)
         if not group_id:
             click.echo(f"Warning: Group '{group}' not found. Proceeding without a group.")
             group = None
@@ -105,22 +101,22 @@ def create(name, policy, group, email, user_name, company_name, custom_field):
     if not email:
         email = prompt("Enter email (optional, press Enter to leave blank): ") or None
     if email:
-        metadata['email'] = email
+        metadata["email"] = email
 
     if not user_name:
         user_name = prompt("Enter user name (optional, press Enter to leave blank): ") or None
     if user_name:
-        metadata['userName'] = user_name
+        metadata["userName"] = user_name
 
     if not company_name:
         company_name = prompt("Enter company name (optional, press Enter to leave blank): ") or None
     if company_name:
-        metadata['companyName'] = company_name
+        metadata["companyName"] = company_name
 
     # Process custom fields
     for field in custom_field:
         try:
-            key, value = field.split('=', 1)
+            key, value = field.split("=", 1)
             metadata[key.strip()] = value.strip()
         except ValueError:
             click.echo(f"Warning: Ignoring invalid custom field format: {field}")
@@ -132,7 +128,7 @@ def create(name, policy, group, email, user_name, company_name, custom_field):
         click.echo(f"  Key: {result['attributes']['key']}")
         click.echo(f"  ID: {result['id']}")
         click.echo("  Metadata:")
-        for key, value in result['attributes'].get('metadata', {}).items():
+        for key, value in result["attributes"].get("metadata", {}).items():
             click.echo(f"    {key}: {value}")
     except requests.exceptions.HTTPError as e:
         click.echo(f"Failed to create license: {e}")
@@ -155,13 +151,17 @@ def list(output):
                 headers = ["Name", "Key", "License", "Email", "User Name", "Company Name"]
 
                 for license in licenses:
-                    name = license['attributes']['name'][:35] + "..." if len(license['attributes']['name']) > 35 else license['attributes']['name']
-                    key = license['attributes']['key'][:10] + "..."
-                    metadata = license['attributes'].get('metadata', {})
-                    license_type = metadata.get('licenseType', '')
-                    email = metadata.get('email', '')
-                    user_name = metadata.get('userName', '') or metadata.get('name', '')
-                    company_name = metadata.get('companyName', '') or metadata.get('company', '')
+                    name = (
+                        license["attributes"]["name"][:35] + "..."
+                        if len(license["attributes"]["name"]) > 35
+                        else license["attributes"]["name"]
+                    )
+                    key = license["attributes"]["key"][:10] + "..."
+                    metadata = license["attributes"].get("metadata", {})
+                    license_type = metadata.get("licenseType", "")
+                    email = metadata.get("email", "")
+                    user_name = metadata.get("userName", "") or metadata.get("name", "")
+                    company_name = metadata.get("companyName", "") or metadata.get("company", "")
 
                     table_data.append([name, key, license_type, email, user_name, company_name])
 
@@ -175,10 +175,10 @@ def list(output):
                 headers = ["Name", "Key", "License"]
 
                 for license in licenses:
-                    name = license['attributes']['name']
-                    key = license['attributes']['key'][:10] + "..."
-                    metadata = license['attributes'].get('metadata', {})
-                    license_type = metadata.get('licenseType', '')
+                    name = license["attributes"]["name"]
+                    key = license["attributes"]["key"][:10] + "..."
+                    metadata = license["attributes"].get("metadata", {})
+                    license_type = metadata.get("licenseType", "")
 
                     table_data.append([name, key, license_type])
 
@@ -194,13 +194,13 @@ def list(output):
                 writer.writerow(headers)
 
                 for license in licenses:
-                    name = license['attributes']['name']
-                    key = license['attributes']['key']
-                    metadata = license['attributes'].get('metadata', {})
-                    license_type = metadata.get('licenseType', '')
-                    email = metadata.get('email', '')
-                    user_name = metadata.get('userName', '') or metadata.get('name', '')
-                    company_name = metadata.get('companyName', '') or metadata.get('company', '')
+                    name = license["attributes"]["name"]
+                    key = license["attributes"]["key"]
+                    metadata = license["attributes"].get("metadata", {})
+                    license_type = metadata.get("licenseType", "")
+                    email = metadata.get("email", "")
+                    user_name = metadata.get("userName", "") or metadata.get("name", "")
+                    company_name = metadata.get("companyName", "") or metadata.get("company", "")
 
                     writer.writerow([name, key, license_type, email, user_name, company_name])
 
@@ -208,9 +208,9 @@ def list(output):
                 json_output = []
                 for license in licenses:
                     license_info = {
-                        "name": license['attributes']['name'],
-                        "key": license['attributes']['key'],
-                        "metadata": license['attributes'].get('metadata', {})
+                        "name": license["attributes"]["name"],
+                        "key": license["attributes"]["key"],
+                        "metadata": license["attributes"].get("metadata", {}),
                     }
                     json_output.append(license_info)
 
@@ -218,20 +218,20 @@ def list(output):
 
             case "text":
                 for license in licenses:
-                    name = license['attributes']['name']
-                    key = license['attributes']['key']
-                    metadata = license['attributes'].get('metadata', {})
-                    license_type = metadata.get('licenseType', '')
-                    email = metadata.get('email', '')
-                    user_name = metadata.get('userName', '') or metadata.get('name', '')
-                    company_name = metadata.get('companyName', '') or metadata.get('company', '')
+                    name = license["attributes"]["name"]
+                    key = license["attributes"]["key"]
+                    metadata = license["attributes"].get("metadata", {})
+                    license_type = metadata.get("licenseType", "")
+                    email = metadata.get("email", "")
+                    user_name = metadata.get("userName", "") or metadata.get("name", "")
+                    company_name = metadata.get("companyName", "") or metadata.get("company", "")
 
                     click.echo(name)
 
 
 # MARK: Licenses cmds - show
 @licenses.command()
-@click.option('-n', '--name', help='Name of the license')
+@click.option("-n", "--name", help="Name of the license")
 @click.option("-o", "--output", help="Output format (json, text)", default="text")
 def show(name, output):
     licenses = get_licenses()
@@ -241,28 +241,24 @@ def show(name, output):
 
     if name:
         # Find the license by name
-        selected_license_data = next((license for license in licenses if name in license['attributes']['name']), None)
+        selected_license_data = next((license for license in licenses if name in license["attributes"]["name"]), None)
         if not selected_license_data:
             click.echo(f"No license found with the name '{name}'.")
             return
     else:
         # If no name provided, use the selection dialog
-        license_options = [(license['id'], f"{license['attributes']['name']} ({license['id']})") for license in licenses]
-        selected_license = create_selection_dialog(
-            "Select a license to show:",
-            license_options,
-            allow_abort=True
-        )
+        license_options = [(license["id"], f"{license['attributes']['name']} ({license['id']})") for license in licenses]
+        selected_license = create_selection_dialog("Select a license to show:", license_options, allow_abort=True)
 
         if selected_license is None:
             click.echo("License show aborted.")
             return
 
-        selected_license_data = next(license for license in licenses if license['id'] == selected_license)
+        selected_license_data = next(license for license in licenses if license["id"] == selected_license)
 
-    license_name = selected_license_data['attributes']['name']
-    license_id = selected_license_data['id']
-    metadata = selected_license_data['attributes'].get('metadata', {})
+    license_name = selected_license_data["attributes"]["name"]
+    license_id = selected_license_data["id"]
+    metadata = selected_license_data["attributes"].get("metadata", {})
 
     match output:
         case "text":
@@ -274,18 +270,14 @@ def show(name, output):
                 click.echo(f"    {key}: {value}")
 
         case "json":
-            json_output = {
-                "name": license_name,
-                "id": license_id,
-                "metadata": metadata
-            }
+            json_output = {"name": license_name, "id": license_id, "metadata": metadata}
             json.dump(json_output, sys.stdout, indent=2)
 
 
 # MARK: Licenses cmds - delete
 @licenses.command()
-@click.option('--name', help='Name of the license to delete')
-@click.option('-f', '--force', is_flag=True, help='Force deletion without confirmation')
+@click.option("--name", help="Name of the license to delete")
+@click.option("-f", "--force", is_flag=True, help="Force deletion without confirmation")
 def delete(name, force):
     licenses = get_licenses()
     if not licenses:
@@ -294,28 +286,24 @@ def delete(name, force):
 
     if name:
         # Find the license by name
-        selected_license_data = next((license for license in licenses if license['attributes']['name'] == name), None)
+        selected_license_data = next((license for license in licenses if license["attributes"]["name"] == name), None)
         if not selected_license_data:
             click.echo(f"No license found with the name '{name}'.")
             return
     else:
         # If no name provided, use the selection dialog
-        license_options = [(license['id'], f"{license['attributes']['name']} ({license['id']})") for license in licenses]
-        selected_license = create_selection_dialog(
-            "Select a license to delete:",
-            license_options,
-            allow_abort=True
-        )
+        license_options = [(license["id"], f"{license['attributes']['name']} ({license['id']})") for license in licenses]
+        selected_license = create_selection_dialog("Select a license to delete:", license_options, allow_abort=True)
 
         if selected_license is None:
             click.echo("License deletion aborted.")
             return
 
-        selected_license_data = next(license for license in licenses if license['id'] == selected_license)
+        selected_license_data = next(license for license in licenses if license["id"] == selected_license)
 
-    license_name = selected_license_data['attributes']['name']
-    license_id = selected_license_data['id']
-    metadata = selected_license_data['attributes'].get('metadata', {})
+    license_name = selected_license_data["attributes"]["name"]
+    license_id = selected_license_data["id"]
+    metadata = selected_license_data["attributes"].get("metadata", {})
 
     click.echo("\nSelected license:")
     click.echo(f"  Name: {license_name}")
@@ -334,7 +322,10 @@ def delete(name, force):
             if delete_license(license_id):
                 click.echo(f"License '{license_name}' (ID: {license_id}) has been successfully deleted.")
             else:
-                click.echo(f"Failed to delete license '{license_name}' (ID: {license_id}). The API request was successful, but the license may not have been deleted.")
+                click.echo(
+                    f"Failed to delete license '{license_name}' (ID: {license_id})."
+                    f"The API request was successful, but the license may not have been deleted."
+                )
         except requests.exceptions.HTTPError as e:
             click.echo(f"Failed to delete license: {e}")
             click.echo("Please check the error details above.")
@@ -346,7 +337,7 @@ def delete(name, force):
 
 # MARK: Licenses cmds - checkout
 @licenses.command()
-@click.option('--name', help='Name of the license to checkout')
+@click.option("--name", help="Name of the license to checkout")
 def checkout(name):
     licenses = get_licenses()
     if not licenses:
@@ -355,29 +346,25 @@ def checkout(name):
 
     if name:
         # Find the license by name
-        selected_license_data = next((license for license in licenses if license['attributes']['name'] == name), None)
+        selected_license_data = next((license for license in licenses if license["attributes"]["name"] == name), None)
         if not selected_license_data:
             click.echo(f"No license found with the name '{name}'.")
             return
     else:
         # If no name provided, use the selection dialog
-        license_options = [(license['id'], f"{license['attributes']['name']} ({license['id']})") for license in licenses]
-        selected_license = create_selection_dialog(
-            "Select a license to checkout:",
-            license_options,
-            allow_abort=True
-        )
+        license_options = [(license["id"], f"{license['attributes']['name']} ({license['id']})") for license in licenses]
+        selected_license = create_selection_dialog("Select a license to checkout:", license_options, allow_abort=True)
 
         if selected_license is None:
             click.echo("License checkout aborted.")
             return
 
-        selected_license_data = next(license for license in licenses if license['id'] == selected_license)
+        selected_license_data = next(license for license in licenses if license["id"] == selected_license)
 
-    license_name = selected_license_data['attributes']['name']
-    license_id = selected_license_data['id']
-    metadata = selected_license_data['attributes'].get('metadata', {})
-    license_expiry = selected_license_data['attributes'].get('expiry')
+    license_name = selected_license_data["attributes"]["name"]
+    license_id = selected_license_data["id"]
+    metadata = selected_license_data["attributes"].get("metadata", {})
+    license_expiry = selected_license_data["attributes"].get("expiry")
 
     click.echo("\nSelected license:")
     click.echo(f"  Name: {license_name}")
@@ -385,7 +372,7 @@ def checkout(name):
 
     if license_expiry:
         try:
-            license_expiry_iso = license_expiry.replace('Z', '+00:00')
+            license_expiry_iso = license_expiry.replace("Z", "+00:00")
             license_expiry_tz = datetime.fromisoformat(license_expiry_iso)
             now = datetime.now(license_expiry_tz.tzinfo)
             time_until_expiry = license_expiry_tz - now
@@ -416,12 +403,15 @@ def checkout(name):
                     click.echo("Certificate save cancelled.")
                     return
 
-            with open(filename, 'w') as f:
-                f.write(result['attributes']['certificate'])
+            with open(filename, "w") as f:
+                f.write(result["attributes"]["certificate"])
 
             click.echo(f"Certificate saved to: {os.path.abspath(filename)}")
         else:
-            click.echo(f"Failed to checkout license '{license_name}' (ID: {license_id}). The API request was successful, but the license may not have been checked out.")
+            click.echo(
+                f"Failed to checkout license '{license_name}' (ID: {license_id})."
+                f"The API request was successful, but the license may not have been checked out."
+            )
     except requests.exceptions.HTTPError as e:
         click.echo(f"Failed to checkout license: {e}")
         click.echo("Please check the error details above.")
@@ -444,7 +434,7 @@ def list():
         return  # Exit early if no groups found
     else:
         # Format the groups data for tabulation
-        formatted_groups = [[group['attributes']['name'], group['id']] for group in groups]
+        formatted_groups = [[group["attributes"]["name"], group["id"]] for group in groups]
         click.echo(tabulate(formatted_groups, headers=["Name", "ID"], tablefmt="grid"))
 
 
@@ -456,7 +446,7 @@ def releases():
 
 # MARK: Releases cmds - list
 @releases.command()
-@click.option('-n', '--name', help='Name of the release (partial match)')
+@click.option("-n", "--name", help="Name of the release (partial match)")
 def list(name=None):
     releases = get_releases()
 
@@ -465,10 +455,7 @@ def list(name=None):
         return
 
     if name:
-        filtered_releases = [
-            release for release in releases
-            if name.lower() in release['attributes']['name'].lower()
-        ]
+        filtered_releases = [release for release in releases if name.lower() in release["attributes"]["name"].lower()]
         if not filtered_releases:
             click.echo(f"No releases found containing '{name}'.")
             return
@@ -478,9 +465,9 @@ def list(name=None):
     headers = ["Name", "Version", "Id"]
 
     for release in releases:
-        release_name = release['attributes']['name']
-        version = release['attributes']['version']
-        id = release['id']
+        release_name = release["attributes"]["name"]
+        version = release["attributes"]["version"]
+        id = release["id"]
 
         table_data.append([release_name, version, id])
 
@@ -495,6 +482,7 @@ def list(name=None):
 def packages():
     pass
 
+
 # MARK: Packages cmds - list
 @packages.command()
 def list():
@@ -507,10 +495,10 @@ def list():
     headers = ["Name", "ID", "Engine", "Platform"]
 
     for package in packages:
-        name = package['attributes'].get('name', 'N/A')
-        id = package['id']
-        engine = package['attributes'].get('engine', 'N/A')
-        platform = package['attributes'].get('platform', 'N/A')
+        name = package["attributes"].get("name", "N/A")
+        id = package["id"]
+        engine = package["attributes"].get("engine", "N/A")
+        platform = package["attributes"].get("platform", "N/A")
 
         table_data.append([name, id, engine, platform])
 
@@ -528,11 +516,11 @@ def artifacts():
 
 # MARK: Artifacts cmds - list
 @artifacts.command()
-@click.option('-n', '--name', help='Name of the artifact (partial match)')
-@click.option('-v', '--version', help='Version of the artifact (partial match)')
-@click.option('-p', '--platform', help='Platform of the artifact (partial match)')
-@click.option('-a', '--arch', help='Architecture of the artifact (partial match)')
-@click.option('-i', '--id', help='Show IDs of the artifacts', is_flag=True)
+@click.option("-n", "--name", help="Name of the artifact (partial match)")
+@click.option("-v", "--version", help="Version of the artifact (partial match)")
+@click.option("-p", "--platform", help="Platform of the artifact (partial match)")
+@click.option("-a", "--arch", help="Architecture of the artifact (partial match)")
+@click.option("-i", "--id", help="Show IDs of the artifacts", is_flag=True)
 def list(name=None, version=None, platform=None, arch=None, id=False):
     artifacts = get_artifacts()
     releases = get_releases()
@@ -542,10 +530,7 @@ def list(name=None, version=None, platform=None, arch=None, id=False):
         return
 
     if name:
-        filtered_artifacts = [
-            artifact for artifact in artifacts
-            if name.lower() in artifact['attributes']['filename'].lower()
-        ]
+        filtered_artifacts = [artifact for artifact in artifacts if name.lower() in artifact["attributes"]["filename"].lower()]
         if not filtered_artifacts:
             click.echo(f"No artifacts found containing '{name}'.")
             return
@@ -553,8 +538,7 @@ def list(name=None, version=None, platform=None, arch=None, id=False):
 
     if version:
         filtered_artifacts = [
-            artifact for artifact in artifacts
-            if version.lower() in artifact['attributes']['filename'].lower()
+            artifact for artifact in artifacts if version.lower() in artifact["attributes"]["filename"].lower()
         ]
         if not filtered_artifacts:
             click.echo(f"No artifacts found containing '{version}'.")
@@ -563,8 +547,7 @@ def list(name=None, version=None, platform=None, arch=None, id=False):
 
     if platform:
         filtered_artifacts = [
-            artifact for artifact in artifacts
-            if platform.lower() in artifact['attributes']['platform'].lower()
+            artifact for artifact in artifacts if platform.lower() in artifact["attributes"]["platform"].lower()
         ]
         if not filtered_artifacts:
             click.echo(f"No artifacts found containing '{platform}'.")
@@ -572,10 +555,7 @@ def list(name=None, version=None, platform=None, arch=None, id=False):
         artifacts = filtered_artifacts
 
     if arch:
-        filtered_artifacts = [
-            artifact for artifact in artifacts
-            if arch.lower() in artifact['attributes']['arch'].lower()
-        ]
+        filtered_artifacts = [artifact for artifact in artifacts if arch.lower() in artifact["attributes"]["arch"].lower()]
         if not filtered_artifacts:
             click.echo(f"No artifacts found containing '{arch}'.")
             return
@@ -589,22 +569,22 @@ def list(name=None, version=None, platform=None, arch=None, id=False):
         headers = ["Name", "Release name", "Release version", "Architecture", "Platform", "Size (MB)"]
 
     for artifact in artifacts:
-        name = artifact['attributes'].get('filename', 'N/A')
-        arch = artifact['attributes'].get('arch', 'N/A')
-        platform = artifact['attributes'].get('platform', 'N/A')
-        size = int(artifact['attributes'].get('filesize', ''))
+        name = artifact["attributes"].get("filename", "N/A")
+        arch = artifact["attributes"].get("arch", "N/A")
+        platform = artifact["attributes"].get("platform", "N/A")
+        size = int(artifact["attributes"].get("filesize", ""))
         if size != 0 or size is not None:
             size_mb = round(size / (1024 * 1024), 2)
         else:
             size_mb = size
 
-        release_id = artifact['relationships']['release']['data']['id']
+        release_id = artifact["relationships"]["release"]["data"]["id"]
         release = get_release_by_id_cached(release_id, releases)
-        release_name = release['attributes']['name']
-        release_version = release['attributes']['version']
+        release_name = release["attributes"]["name"]
+        release_version = release["attributes"]["version"]
 
         if id:
-            artifact_id = artifact['id']
+            artifact_id = artifact["id"]
             table_data.append([name, artifact_id, release_name, release_version, arch, platform, size_mb])
         else:
             table_data.append([name, release_name, release_version, arch, platform, size_mb])
@@ -614,10 +594,11 @@ def list(name=None, version=None, platform=None, arch=None, id=False):
 
     click.echo(tabulate(table_data, headers=headers, tablefmt="grid"))
 
+
 # MARK: Main
 def main():
     cli()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -125,6 +125,10 @@ def checkout_license(license_id, ttl, encrypt=True):
         # Include relationship data in the license file. Can be any combination of:
         # entitlements, product, policy, owner, users, environment, or group.
     }
-    response = requests.post(f"{API_BASE_URL}/accounts/{ACCOUNT_ID}/licenses/{license_id}/actions/check-out", headers=HEADERS, params=url_params)
+    response = requests.post(
+        f"{API_BASE_URL}/accounts/{ACCOUNT_ID}/licenses/{license_id}/actions/check-out",
+        headers=HEADERS,
+        params=url_params
+    )
     response.raise_for_status()
     return response.json()['data']
