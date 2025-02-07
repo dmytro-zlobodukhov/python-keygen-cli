@@ -232,7 +232,8 @@ def list(output):
 # MARK: Licenses cmds - show
 @licenses.command()
 @click.option('-n', '--name', help='Name of the license')
-def show(name):
+@click.option("-o", "--output", help="Output format (json, text)", default="text")
+def show(name, output):
     licenses = get_licenses()
     if not licenses:
         click.echo("No licenses found.")
@@ -263,12 +264,22 @@ def show(name):
     license_id = selected_license_data['id']
     metadata = selected_license_data['attributes'].get('metadata', {})
 
-    click.echo(f"\nSelected license:")
-    click.echo(f"  Name: {license_name}")
-    click.echo(f"  ID: {license_id}")
-    click.echo("  Metadata:")
-    for key, value in metadata.items():
-        click.echo(f"    {key}: {value}")
+    match output:
+        case "text":
+            click.echo(f"\nSelected license:")
+            click.echo(f"  Name: {license_name}")
+            click.echo(f"  ID: {license_id}")
+            click.echo("  Metadata:")
+            for key, value in metadata.items():
+                click.echo(f"    {key}: {value}")
+
+        case "json":
+            json_output = {
+                "name": license_name,
+                "id": license_id,
+                "metadata": metadata
+            }
+            json.dump(json_output, sys.stdout, indent=2)
 
 
 # MARK: Licenses cmds - delete
