@@ -1,17 +1,19 @@
-import requests
 import json
+
 import click
-from ..config import API_BASE_URL, ACCOUNT_ID, HEADERS
+import requests
+
+from ..config import ACCOUNT_ID, API_BASE_URL, HEADERS
 
 
 # MARK: - Get licenses
 def get_licenses():
-    """
-    Get all licenses.
+    """Get all licenses.
     Docs: https://keygen.sh/docs/api/licenses/#licenses-list
 
     Returns:
         list: A list of licenses.
+
     """
     licenses = []
     page = 1
@@ -36,8 +38,7 @@ def get_licenses():
 
 # MARK: - Create license
 def create_license(name, group, policy, metadata):
-    """
-    Create a new license.
+    """Create a new license.
     Docs: https://keygen.sh/docs/api/licenses/#licenses-create
 
     Args:
@@ -87,8 +88,7 @@ def create_license(name, group, policy, metadata):
 
 # MARK: - Delete license
 def delete_license(license_id):
-    """
-    Delete a license by its ID.
+    """Delete a license by its ID.
     Docs: https://keygen.sh/docs/api/licenses/#licenses-delete
 
     Args:
@@ -96,6 +96,7 @@ def delete_license(license_id):
 
     Returns:
         bool: True if the license was deleted successfully, False otherwise.
+
     """
     response = requests.delete(f"{API_BASE_URL}/accounts/{ACCOUNT_ID}/licenses/{license_id}", headers=HEADERS)
     response.raise_for_status()
@@ -104,8 +105,7 @@ def delete_license(license_id):
 
 # MARK: - Checkout license
 def checkout_license(license_id, ttl, encrypt=True):
-    """
-    Checkout a license with the specified TTL (time to live) and encryption option.
+    """Checkout a license with the specified TTL (time to live) and encryption option.
     Docs: https://keygen.sh/docs/api/licenses/#licenses-actions-check-out
 
     Args:
@@ -115,13 +115,14 @@ def checkout_license(license_id, ttl, encrypt=True):
 
     Returns:
         dict: The response from the API containing the checked out license details.
+
     """
     url_params = {
         "ttl": ttl,
         "encrypt": encrypt
         # TODO: Add includes
         # https://keygen.sh/docs/api/licenses/#licenses-check-out-query-include
-        # Include relationship data in the license file. Can be any combination of: 
+        # Include relationship data in the license file. Can be any combination of:
         # entitlements, product, policy, owner, users, environment, or group.
     }
     response = requests.post(f"{API_BASE_URL}/accounts/{ACCOUNT_ID}/licenses/{license_id}/actions/check-out", headers=HEADERS, params=url_params)

@@ -1,5 +1,6 @@
 import requests
-from ..config import API_BASE_URL, ACCOUNT_ID, HEADERS
+
+from ..config import ACCOUNT_ID, API_BASE_URL, HEADERS
 
 
 def get_releases():

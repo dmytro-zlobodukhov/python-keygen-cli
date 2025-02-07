@@ -1,21 +1,21 @@
+import csv
+import json
+import os
+import sys
+from datetime import datetime
+
 import click
 import requests
-import json
-import csv
-import sys
-import os
-
 from prompt_toolkit import prompt
 from tabulate import tabulate
-from datetime import datetime, timezone
 
-from .utils import create_selection_dialog
-from .api.licenses import create_license, get_licenses, delete_license, checkout_license
-from .api.groups import get_groups
-from .api.policies import get_policies
-from .api.releases import get_releases, get_release_by_id, get_release_by_id_cached
-from .api.packages import get_packages
 from .api.artifacts import get_artifacts
+from .api.groups import get_groups
+from .api.licenses import checkout_license, create_license, delete_license, get_licenses
+from .api.packages import get_packages
+from .api.policies import get_policies
+from .api.releases import get_release_by_id_cached, get_releases
+from .utils import create_selection_dialog
 
 
 # MARK: CLI - main
@@ -266,7 +266,7 @@ def show(name, output):
 
     match output:
         case "text":
-            click.echo(f"\nSelected license:")
+            click.echo("\nSelected license:")
             click.echo(f"  Name: {license_name}")
             click.echo(f"  ID: {license_id}")
             click.echo("  Metadata:")
@@ -317,7 +317,7 @@ def delete(name, force):
     license_id = selected_license_data['id']
     metadata = selected_license_data['attributes'].get('metadata', {})
 
-    click.echo(f"\nSelected license:")
+    click.echo("\nSelected license:")
     click.echo(f"  Name: {license_name}")
     click.echo(f"  ID: {license_id}")
     click.echo("  Metadata:")
@@ -379,7 +379,7 @@ def checkout(name):
     metadata = selected_license_data['attributes'].get('metadata', {})
     license_expiry = selected_license_data['attributes'].get('expiry')
 
-    click.echo(f"\nSelected license:")
+    click.echo("\nSelected license:")
     click.echo(f"  Name: {license_name}")
     click.echo(f"  ID: {license_id}")
 
@@ -593,7 +593,7 @@ def list(name=None, version=None, platform=None, arch=None, id=False):
         arch = artifact['attributes'].get('arch', 'N/A')
         platform = artifact['attributes'].get('platform', 'N/A')
         size = int(artifact['attributes'].get('filesize', ''))
-        if size != 0 or size != None:
+        if size != 0 or size is not None:
             size_mb = round(size / (1024 * 1024), 2)
         else:
             size_mb = size

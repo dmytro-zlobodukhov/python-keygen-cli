@@ -1,10 +1,10 @@
 import click
 from prompt_toolkit.application import Application
+from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.layout.containers import HSplit, Window
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.layout import Layout
-from prompt_toolkit.formatted_text import HTML
 
 
 # MARK: Selection dialog
@@ -40,10 +40,10 @@ def create_selection_dialog(title, options, allow_abort=True, allow_no_selection
                 formatted_options.append(f"<ansired>▸</ansired> {option[1]}")
             else:
                 formatted_options.append(f"  {option[1]}")
-        
+
         if allow_abort:
             formatted_options.append("  (Press 'q' to abort)")
-        
+
         return HTML('\n'.join(formatted_options))
 
     layout = Layout(

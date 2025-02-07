@@ -1,5 +1,7 @@
 import requests
-from ..config import API_BASE_URL, ACCOUNT_ID, HEADERS
+
+from ..config import ACCOUNT_ID, API_BASE_URL, HEADERS
+
 
 def get_packages():
     packages = []
@@ -13,10 +15,10 @@ def get_packages():
         response.raise_for_status()
         data = response.json()
         packages.extend(data['data'])
-        
+
         if 'next' not in data['links'] or not data['links']['next']:
             break
-        
+
         page += 1
 
     return packages

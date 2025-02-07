@@ -292,6 +292,26 @@ Selected license:
     licenseType: Trial
 ```
 
+### Checkout a License
+
+Action to check-out a license. This will generate a snapshot of the license at time of checkout, encoded into a license file certificate that can be decoded and used for licensing offline and air-gapped environments. 
+
+To checkout a license:
+```
+❯ kgsh licenses checkout --name "license1"
+
+Selected license:
+  Name: license1
+  ID: abcdabcd-abdc-abdc-abdc-abdcabdcabdc
+  Metadata:
+    email:
+    userName: Service User
+    companyName: CompanyName
+    licenseType: Trial
+License 'license1' (ID: abcdabcd-abdc-abdc-abdc-abdcabdcabdc) has been successfully checked out.
+Certificate saved to: /home/user/python-keygen-cli/license1.lic
+```
+
 ### Deleting a License
 
 To delete a license:

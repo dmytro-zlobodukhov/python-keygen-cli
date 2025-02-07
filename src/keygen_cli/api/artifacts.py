@@ -1,23 +1,24 @@
 import requests
-from ..config import API_BASE_URL, ACCOUNT_ID, HEADERS
+
+from ..config import ACCOUNT_ID, API_BASE_URL, HEADERS
 
 
 # MARK: - Get artifacts
 def get_artifacts():
-    """
-    Get all artifacts.
+    """Get all artifacts.
     Docs: https://keygen.sh/docs/api/artifacts/#artifacts-list
 
     Returns:
         list: A list of artifacts.
+
     """
     artifacts = []
     page = 1
 
     while True:
         response = requests.get(
-            url=f"{API_BASE_URL}/accounts/{ACCOUNT_ID}/artifacts", 
-            headers=HEADERS, 
+            url=f"{API_BASE_URL}/accounts/{ACCOUNT_ID}/artifacts",
+            headers=HEADERS,
             params={"page[number]": page, "page[size]": 100}  # Increase page size to 100
         )
         response.raise_for_status()
