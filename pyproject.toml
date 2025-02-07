@@ -4,12 +4,27 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "keygen-cli"
-version = "0.1.0"
+version = "0.2.0"
 description = "A CLI application interacting with Keygen.sh API"
-authors = [{name = "Your Name", email = "your.email@example.com"}]
+authors = [{name = "Dmytro Zlobodukhov"}]
 license = {text = "MIT"}
 readme = "README.md"
-requires-python = ">=3.8"
+classifiers = [
+    "Topic :: Utilities",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "License :: OSI Approved :: MIT License",
+]
+requires-python = ">=3.10"
 dependencies = [
     "click",
     "requests",
@@ -23,6 +38,7 @@ dev = [
     "pytest",
     "pre-commit",
     "ruff",
+    "bump-my-version",
 ]
 
 [project.scripts]
@@ -36,7 +52,7 @@ your_project_name = ["py.typed"]
 
 [tool.ruff]
 line-length = 128
-target-version = "py38"
+target-version = "py312"
 select = ["E", "F", "I", "N", "W", "B", "C", "D"]
 ignore = []
 
@@ -48,3 +64,29 @@ known-first-party = ["keygen_cli"]
 
 [tool.mypy]
 strict = true
+
+[tool.bumpversion]
+current_version = "0.2.0"
+parse = '(?P<major>\d+)\.(?P<minor>\d+)\.(?P<patch>\d+)((?P<release>[a-z]+)(?P<build>\d+))?'
+serialize = [
+    "{major}.{minor}.{patch}{release}{build}",
+    "{major}.{minor}.{patch}-{release}.{build}",
+    "{major}.{minor}.{patch}",
+]
+commit = true
+tag = true
+sign_tags = true
+tag_name = "{new_version}"
+tag_message = "Bump version: {current_version} → {new_version}"
+commit_message = "Bump version: {current_version} → {new_version}"
+allow_dirty = false
+post_commit_hooks = ["git push --follow-tags"]
+
+[tool.bumpversion.parts.release]
+optional_value = "final"
+values = ["a", "b", "dev", "rc", "final"]
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
