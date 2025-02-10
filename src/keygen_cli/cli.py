@@ -71,6 +71,8 @@ def create(name, policy, group, custom_field):
         policy = policy_id
 
     if not group:
+        group = None
+    elif group and group != "":
         groups = get_groups()
         if not groups:
             click.echo("Warning: No groups found. Proceeding without a group.")
