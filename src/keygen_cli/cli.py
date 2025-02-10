@@ -35,11 +35,8 @@ def licenses():
 @click.option("-n", "--name", help="Name of the license")
 @click.option("-p", "--policy", help="Name of the policy for the license")
 @click.option("-g", "--group", help="Name of the group for the license")
-@click.option("-e", "--email", help="Email for the license metadata")
-@click.option("-u", "--user-name", help="User name for the license metadata")
-@click.option("-c", "--company-name", help="Company name for the license metadata")
-@click.option("--custom-field", help="Custom field for the license metadata (format: key=value)", multiple=True)
-def create(name, policy, group, email, user_name, company_name, custom_field):
+@click.option("-m", "--custom-field", help="Custom field for the license metadata (format: key=value)", multiple=True)
+def create(name, policy, group, custom_field):
     if not name:
         name = prompt("Enter license name: ")
 
@@ -97,21 +94,6 @@ def create(name, policy, group, email, user_name, company_name, custom_field):
 
     # Metadata collection
     metadata = {}
-
-    if not email:
-        email = prompt("Enter email (optional, press Enter to leave blank): ") or None
-    if email:
-        metadata["email"] = email
-
-    if not user_name:
-        user_name = prompt("Enter user name (optional, press Enter to leave blank): ") or None
-    if user_name:
-        metadata["userName"] = user_name
-
-    if not company_name:
-        company_name = prompt("Enter company name (optional, press Enter to leave blank): ") or None
-    if company_name:
-        metadata["companyName"] = company_name
 
     # Process custom fields
     for field in custom_field:

@@ -53,11 +53,7 @@ def create_license(name, group, policy, metadata):
             "type": "licenses",
             "attributes": {
                 "name": name,
-                "metadata": {
-                    "email": metadata.get("email"),
-                    "userName": metadata.get("userName"),
-                    "companyName": metadata.get("companyName")
-                }
+                "metadata": {}
             },
             "relationships": {
                 "policy": {
@@ -66,6 +62,10 @@ def create_license(name, group, policy, metadata):
             }
         }
     }
+
+    for entry in metadata:
+        payload["data"]["attributes"]["metadata"][entry] = metadata[entry]
+
     if group:
         payload["data"]["relationships"]["group"] = {
             "data": {"type": "groups", "id": group}
