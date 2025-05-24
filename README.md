@@ -44,6 +44,8 @@ By addressing these needs, this CLI tool streamlines our license management proc
 
 p.s. This tool is not perfect and is not intended to replace the web interface. It is a simple tool to help with common tasks.
 
+[Back to Table of Contents](#table-of-contents)
+
 ## Installation
 
 1. Clone this repository and navigate to it (it is `python-keygen-cli` directory by default):
@@ -61,6 +63,8 @@ p.s. This tool is not perfect and is not intended to replace the web interface. 
    ```
    pip install -e ".[dev]"
    ```
+
+[Back to Table of Contents](#table-of-contents)
 
 ## Configuration
 
@@ -84,6 +88,8 @@ $env:KEYGEN_PRODUCT_TOKEN="your_product_token"
 ```
 
 Replace `your_account_id` and `your_product_token` with your actual Keygen.sh account ID and product token.
+
+[Back to Table of Contents](#table-of-contents)
 
 # Usage
 
@@ -120,14 +126,11 @@ License created successfully:
   Key: <here will be the license key>
   ID: abcdabcd-abdc-abdc-abdc-abdcabdcabdc
   Metadata:
-    email: None
-    userName: None
-    companyName: None
 ```
 
 You can also provide information via command-line options (policy `--policy` and group `--group` are mandatory and must exist in your Keygen account):
 ```
-❯ kgsh licenses create --name "My-License-1" --policy "Standard-Policy" --group "Test-Group" --email "user@example.com" --user-name "John Doe" --company-name "ACME Inc."
+❯ kgsh licenses create --name "My-License-1" --policy "Standard-Policy" --group "Test-Group" -m "email=user@example.com" -m "userName=John Doe" -m "companyName=ACME Inc."
 
 License created successfully:
   Name: My-License-1
@@ -140,7 +143,7 @@ License created successfully:
 ```
 Or even shorter (policy `-p` and group `-g` are mandatory and must exist in your Keygen account):
 ```
-❯ kgsh licenses create -n "My-License-2" -p "Standard-Policy" -g "Test-Group" -e "user@example.com" -u "John Doe" -c "ACME Inc."
+❯ kgsh licenses create -n "My-License-2" -p "Standard-Policy" -g "Test-Group" -m "email=user@example.com" -m "userName=John Doe" -m "companyName=ACME Inc."
 
 License created successfully:
   Name: My-License-2
@@ -166,6 +169,8 @@ You can even add additional custom metadata fields (not tested yet):
 ```
 ❯ kgsh licenses create --name "Custom-License" --custom-field "department=Sales" --custom-field "role=Manager"
 ```
+
+[Back to Table of Contents](#table-of-contents)
 
 ### Listing Licenses
 
@@ -257,6 +262,8 @@ It will list all licenses in your account in a table/json/csv/text view, includi
 
 If the value is `None`, it will be displayed as empty.
 
+[Back to Table of Contents](#table-of-contents)
+
 ### Showing License Details
 
 To show details of a specific license (or you can set `-o text` explicitly):
@@ -303,6 +310,8 @@ Selected license:
     licenseType: Trial
 ```
 
+[Back to Table of Contents](#table-of-contents)
+
 ### Checkout a License
 
 Action to check-out a license. This will generate a snapshot of the license at time of checkout, encoded into a license file certificate that can be decoded and used for licensing offline and air-gapped environments. 
@@ -322,6 +331,8 @@ Selected license:
 License 'license1' (ID: abcdabcd-abdc-abdc-abdc-abdcabdcabdc) has been successfully checked out.
 Certificate saved to: /home/user/python-keygen-cli/license1.lic
 ```
+
+[Back to Table of Contents](#table-of-contents)
 
 ### Deleting a License
 
@@ -379,6 +390,8 @@ Selected license:
 License 'asdasd' (ID: abcdabcd-abdc-abdc-abdc-abdcabdcabdc) has been successfully deleted.
 ```
 
+[Back to Table of Contents](#table-of-contents)
+
 ## Groups
 
 ### Listing Groups
@@ -394,6 +407,8 @@ License 'asdasd' (ID: abcdabcd-abdc-abdc-abdc-abdcabdcabdc) has been successfull
 | group2  | abcdabcd-abdc-abdc-abdc-abdcabdcabdc |
 +---------+--------------------------------------+
 ```
+
+[Back to Table of Contents](#table-of-contents)
 
 ## Packages
 
@@ -412,6 +427,8 @@ License 'asdasd' (ID: abcdabcd-abdc-abdc-abdc-abdcabdcabdc) has been successfull
 | package3  | cbcdabcd-abdc-abdc-abdc-abdcabdcabdc | pypi     | N/A        |
 +-----------+--------------------------------------+----------+------------+
 ```
+
+[Back to Table of Contents](#table-of-contents)
 
 ## Releases
 
@@ -459,6 +476,8 @@ List releases by part of release name:
 | awesome-release2 | 2.4.8      | 2bcdabcd-abdc-abdc-abdc-abdcabdcabdc |
 +------------------+------------+--------------------------------------+
 ```
+
+[Back to Table of Contents](#table-of-contents)
 
 ## Artifacts
 
@@ -558,3 +577,5 @@ Or you can combine all these filters at once:
 | package3-1.1.3-py3-none-any.whl  | 8bcdabcd-abdc-abdc-abdc-abdcabdcabdc | arm64        | linux      |        0.2  |
 +----------------------------------+--------------------------------------+--------------+------------+-------------+
 ```
+
+[Back to Table of Contents](#table-of-contents)
