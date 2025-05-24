@@ -82,25 +82,25 @@ exclude = [
 ]
 line-length = 128
 target-version = "py312"
-select = ["E", "F", "I", "N", "W", "B", "C", "D"]
-ignore = []
+
 
 [tool.ruff.lint]
 ignore = [
-    "D", # Requires docstrings for everything and specific docstring format
-    "F811", # redefinition of unused '...' (multiple functions wit hthe same name exist for different API endpoints)
+    "D",    # Requires docstrings for everything and specific docstring format
+    "F811", # redefinition of unused '...' (multiple functions with the same name exist for different API endpoints)
     "C901", # function is too complex
 ]
+select = ["E", "F", "I", "N", "W", "B", "C", "D"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["keygen_cli"]
 
 [tool.ruff.format]
 # Like Black, use double quotes for strings.
 quote-style = "double"
-
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
-
-[tool.ruff.isort]
-known-first-party = ["keygen_cli"]
 
 [tool.mypy]
 strict = true
